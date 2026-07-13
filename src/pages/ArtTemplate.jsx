@@ -117,6 +117,31 @@ export default function ArtTemplate() {
   const [activeTab, setActiveTab] = useState('Settings')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [chatOpen, setChatOpen] = useState(false)
+  const [messages, setMessages] = useState(chatMessages)
+  const [chatDraft, setChatDraft] = useState('')
+
+  const handleSendMessage = () => {
+    const text = chatDraft.trim()
+
+    if (!text) {
+      return
+    }
+
+    const time = new Intl.DateTimeFormat('en', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })
+      .format(new Date())
+      .toLowerCase()
+      .replace(' ', '')
+
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      { text, time, side: 'right', green: true },
+    ])
+    setChatDraft('')
+  }
 
   return (
     <div className="min-h-screen bg-ink-50 text-ink-900">
@@ -137,8 +162,15 @@ export default function ArtTemplate() {
       ) : null}
 
       <ProfileSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <ChatLauncher onOpen={() => setChatOpen(true)} />
-      <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
+      <ChatLauncher open={chatOpen} onOpen={() => setChatOpen(true)} />
+      <ChatDrawer
+        open={chatOpen}
+        messages={messages}
+        draft={chatDraft}
+        onDraftChange={setChatDraft}
+        onSend={handleSendMessage}
+        onClose={() => setChatOpen(false)}
+      />
 
       <div className="min-h-screen lg:pl-[270px]">
         <ArtTemplateHeader activeTab={activeTab} onTabChange={setActiveTab} />
@@ -265,54 +297,37 @@ function ProfileSidebar({ open, onClose }) {
   )
 }
 
-function ChatLauncher({ onOpen }) {
+function ChatLauncher({ open, onOpen }) {
+  if (open) {
+    return null
+  }
+
   return (
-    <>
-      <button
-        type="button"
-        onClick={onOpen}
-        className="fixed bottom-5 right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-brand-dark text-white shadow-lg hover:bg-brand-green lg:hidden"
-        aria-label="Open chat"
-      >
-        <Send size={18} fill="currentColor" />
-      </button>
-      <aside className="fixed right-3 top-20 z-30 hidden w-12 flex-col items-center gap-5 lg:flex">
-        {chatContacts.map((contact) => (
-          <button
-            key={contact.name}
-            type="button"
-            onClick={onOpen}
-            className={`relative rounded-full transition-transform hover:scale-105 ${
-              contact.active ? 'ring-4 ring-white drop-shadow-lg' : ''
-            }`}
-            aria-label={`Open chat with ${contact.name}`}
-          >
-            <Avatar name={contact.name} size="sm" />
-            {contact.badge ? (
-              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold text-white">
-                {contact.badge}
-              </span>
-            ) : null}
-          </button>
-        ))}
-        <button
-          type="button"
-          onClick={onOpen}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-brand-dark bg-brand-green/10 text-xl leading-none text-brand-dark hover:bg-brand-green/20"
-          aria-label="Start new chat"
-        >
-          +
-        </button>
-      </aside>
-    </>
+    <button
+      type="button"
+      onClick={onOpen}
+      className="fixed bottom-6 right-6 z-30 flex items-center gap-3 rounded-full bg-white px-3 py-2 text-sm font-medium text-ink-900 shadow-lg ring-1 ring-ink-100 hover:bg-ink-50"
+      aria-label="Open chat"
+    >
+      <span className="relative">
+        <Avatar name="Regina Cooper" size="sm" />
+        <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-semibold text-white">
+          8
+        </span>
+      </span>
+      <span className="hidden sm:inline">Chat</span>
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-dark text-white">
+        <Send size={16} fill="currentColor" />
+      </span>
+    </button>
   )
 }
 
-function ChatDrawer({ open, onClose }) {
+function ChatDrawer({ open, messages, draft, onDraftChange, onSend, onClose }) {
   return (
     <aside
-      className={`fixed right-0 top-0 z-50 flex h-screen w-full max-w-[492px] flex-col bg-white shadow-2xl transition-transform duration-300 lg:h-[1173px] ${
-        open ? 'translate-x-0' : 'translate-x-full'
+      className={`fixed bottom-6 right-6 z-50 flex h-[min(760px,calc(100vh-3rem))] w-[calc(100vw-3rem)] max-w-[492px] flex-col overflow-hidden rounded-xl2 bg-white shadow-2xl ring-1 ring-ink-100 transition-all duration-300 ${
+        open ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-6 opacity-0'
       }`}
       aria-hidden={!open}
     >
@@ -337,7 +352,7 @@ function ChatDrawer({ open, onClose }) {
         <div className="flex min-w-0 flex-col">
           <div className="flex-1 overflow-y-auto px-6 py-7">
             <div className="space-y-6">
-              {chatMessages.map((message, index) =>
+              {messages.map((message, index) =>
                 message.day ? (
                   <div key={message.day} className="flex items-center gap-4 py-2">
                     <span className="h-px flex-1 bg-ink-100" />
@@ -356,12 +371,17 @@ function ChatDrawer({ open, onClose }) {
 
           <form
             className="flex items-center gap-3 border-t border-ink-100 px-5 py-4"
-            onSubmit={(event) => event.preventDefault()}
+            onSubmit={(event) => {
+              event.preventDefault()
+              onSend()
+            }}
           >
             <button type="button" className="text-ink-400 hover:text-ink-700" aria-label="Attach file">
               <Paperclip size={18} />
             </button>
             <input
+              value={draft}
+              onChange={(event) => onDraftChange(event.target.value)}
               className="min-w-0 flex-1 bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400"
               placeholder="Type a message"
             />

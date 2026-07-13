@@ -349,8 +349,8 @@ export default function Task() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col p-4 md:p-8">
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden p-4 md:p-6">
+      <div className="mb-4 flex shrink-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between md:mb-5">
         <div className="relative">
           <button
             className="flex items-center gap-2 text-2xl font-semibold text-ink-900"
@@ -431,7 +431,7 @@ export default function Task() {
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 gap-4 overflow-x-auto pb-2">
+      <div className="flex min-h-0 flex-1 gap-4 overflow-x-auto overflow-y-hidden pb-1">
         {columns.map((column) => (
           <KanbanColumn
             key={column.id}
@@ -481,7 +481,7 @@ function KanbanColumn({
 }) {
   return (
     <section
-      className={`flex w-[min(100%,340px)] shrink-0 flex-col rounded-xl2 bg-white shadow-card ${
+      className={`flex h-full min-h-0 min-w-[280px] flex-1 flex-col rounded-xl2 bg-white shadow-card ${
         isDropTarget ? 'ring-2 ring-brand-dark/30' : ''
       }`}
       onDragOver={(event) => event.preventDefault()}

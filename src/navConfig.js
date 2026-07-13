@@ -13,7 +13,6 @@ import {
 
 export const navItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-  { label: 'Task', path: '/task', icon: ListChecks },
   {
     label: 'E-Commerce',
     path: '/ecommerce/products',
@@ -27,6 +26,7 @@ export const navItems = [
   { label: 'Calendar', path: '/calendar', icon: CalendarDays },
   { label: 'Mail', path: '/mail', icon: Mail, badge: 8 },
   { label: 'Chat', path: '/chat', icon: MessageSquare },
+  { label: 'Task', path: '/task', icon: ListChecks },
   { label: 'Projects', path: '/projects', icon: FolderKanban },
   { label: 'File Manager', path: '/file-manager', icon: FolderOpen },
   { label: 'Notes', path: '/notes', icon: StickyNote },

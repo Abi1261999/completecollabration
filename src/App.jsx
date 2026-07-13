@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import PlaceholderPage from './components/PlaceholderPage'
@@ -7,6 +7,12 @@ import ArtTemplate from './pages/ArtTemplate'
 import { navItems } from './navConfig'
 
 export default function App() {
+  const { pathname } = useLocation()
+
+  if (pathname === '/arttemplate') {
+    return <ArtTemplate />
+  }
+
   return (
     <div className="flex min-h-screen bg-ink-50">
       <Sidebar />

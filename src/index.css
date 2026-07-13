@@ -22,3 +22,26 @@ body {
   background: #E5E7EB;
   border-radius: 8px;
 }
+
+.range-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 4px solid #DCFCE7;
+  background: #16A34A;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.16);
+  cursor: pointer;
+}
+
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  border: 4px solid #DCFCE7;
+  background: #16A34A;
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.16);
+  cursor: pointer;
+}

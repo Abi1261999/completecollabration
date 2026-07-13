@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
+  CalendarDays,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -112,6 +113,15 @@ function ProductTabs({ activeTab, onTabChange }) {
 }
 
 function ProductsTable({ products: visibleProducts, selectedIds, query, page, onQueryChange, onPageChange, onSelectionChange }) {
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [filters, setFilters] = useState({
+    category: 'All',
+    status: 'Available',
+    startDate: '12.07.2020',
+    endDate: '12.07.2020',
+    minPrice: 500,
+    maxPrice: 5500,
+  })
   const visibleIds = visibleProducts.map((product) => product.id)
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every((id) => selectedIds.includes(id))
 
@@ -136,7 +146,7 @@ function ProductsTable({ products: visibleProducts, selectedIds, query, page, on
   return (
     <section className="flex w-full flex-col rounded-xl2 border border-ink-100 bg-white p-5 shadow-card xl:h-[729px]">
       <div className="mb-5 flex shrink-0 flex-col gap-4 lg:flex-row lg:items-center">
-        <div className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-xl border border-ink-100 px-4">
+        <div className="relative flex h-11 min-w-0 flex-1 items-center gap-3 rounded-xl border border-ink-100 px-4">
           <Search size={17} className="text-ink-400" />
           <input
             value={query}
@@ -144,9 +154,21 @@ function ProductsTable({ products: visibleProducts, selectedIds, query, page, on
             className="min-w-0 flex-1 bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400"
             placeholder="Search products..."
           />
-          <button className="text-ink-400 hover:text-ink-700" aria-label="Filter products">
+          <button
+            className={`rounded-lg p-1.5 ${filterOpen ? 'bg-ink-50 text-ink-700' : 'text-ink-400 hover:text-ink-700'}`}
+            onClick={() => setFilterOpen((open) => !open)}
+            aria-expanded={filterOpen}
+            aria-label="Filter products"
+          >
             <SlidersHorizontal size={17} />
           </button>
+          {filterOpen ? (
+            <FilterPopover
+              filters={filters}
+              onFilterChange={setFilters}
+              onSave={() => setFilterOpen(false)}
+            />
+          ) : null}
         </div>
 
         <button className="flex h-11 items-center justify-center gap-2 rounded-xl border border-ink-100 px-5 text-sm text-ink-500 hover:bg-ink-50">
@@ -245,6 +267,143 @@ function Checkbox({ checked = false, onChange, label = 'Select row' }) {
       ) : null}
     </button>
   )
+}
+
+function FilterPopover({ filters, onFilterChange, onSave }) {
+  const minLimit = 500
+  const maxLimit = 5500
+
+  const updateFilter = (key, value) => {
+    onFilterChange((currentFilters) => ({ ...currentFilters, [key]: value }))
+  }
+
+  const updateMinPrice = (value) => {
+    const nextValue = Math.min(Number(value), filters.maxPrice - 100)
+    updateFilter('minPrice', nextValue)
+  }
+
+  const updateMaxPrice = (value) => {
+    const nextValue = Math.max(Number(value), filters.minPrice + 100)
+    updateFilter('maxPrice', nextValue)
+  }
+
+  const minPercent = ((filters.minPrice - minLimit) / (maxLimit - minLimit)) * 100
+  const maxPercent = ((filters.maxPrice - minLimit) / (maxLimit - minLimit)) * 100
+
+  return (
+    <div className="absolute right-0 top-14 z-30 w-[calc(100vw-4rem)] max-w-[460px] rounded-xl2 bg-white p-8 shadow-2xl ring-1 ring-ink-100 md:w-[460px]">
+      <h2 className="mb-8 text-3xl font-semibold text-ink-700">Filter</h2>
+
+      <div className="space-y-6">
+        <FilterField label="Category">
+          <SelectLike value={filters.category} onChange={(value) => updateFilter('category', value)} options={['All', 'Notebook', 'Watch', 'Phone']} />
+        </FilterField>
+
+        <FilterField label="Status">
+          <SelectLike value={filters.status} onChange={(value) => updateFilter('status', value)} options={['Available', 'Disabled']} />
+        </FilterField>
+
+        <FilterField label="Date">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <DateInput value={filters.startDate} onChange={(value) => updateFilter('startDate', value)} />
+            <span className="text-ink-100">-</span>
+            <DateInput value={filters.endDate} onChange={(value) => updateFilter('endDate', value)} />
+          </div>
+        </FilterField>
+
+        <FilterField label="Price">
+          <div>
+            <div className="relative h-8">
+              <div className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-ink-100" />
+              <div
+                className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-brand-dark"
+                style={{ left: `${minPercent}%`, right: `${100 - maxPercent}%` }}
+              />
+              <input
+                type="range"
+                min={minLimit}
+                max={maxLimit}
+                step="100"
+                value={filters.minPrice}
+                onChange={(event) => updateMinPrice(event.target.value)}
+                className="range-thumb pointer-events-none absolute inset-x-0 top-0 h-8 w-full appearance-none bg-transparent"
+                aria-label="Minimum price"
+              />
+              <input
+                type="range"
+                min={minLimit}
+                max={maxLimit}
+                step="100"
+                value={filters.maxPrice}
+                onChange={(event) => updateMaxPrice(event.target.value)}
+                className="range-thumb pointer-events-none absolute inset-x-0 top-0 h-8 w-full appearance-none bg-transparent"
+                aria-label="Maximum price"
+              />
+            </div>
+            <div className="mt-1 flex items-center justify-between text-base font-semibold text-ink-500">
+              <span>{formatPrice(filters.minPrice)}</span>
+              <span>{formatPrice(filters.maxPrice)}</span>
+            </div>
+          </div>
+        </FilterField>
+      </div>
+
+      <div className="mt-7 flex justify-end">
+        <button
+          className="h-[67px] w-full rounded-xl bg-brand-dark text-lg font-semibold text-white shadow-card hover:bg-brand-green sm:w-[150px]"
+          onClick={onSave}
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function FilterField({ label, children }) {
+  return (
+    <label className="block">
+      <span className="mb-3 block text-base font-semibold text-ink-400">{label}</span>
+      {children}
+    </label>
+  )
+}
+
+function SelectLike({ value, options, onChange }) {
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-12 w-full appearance-none rounded-xl border border-ink-100 bg-white px-5 pr-10 text-base font-semibold text-ink-500 outline-none hover:bg-ink-50"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      <ChevronDown size={16} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-ink-400" />
+    </div>
+  )
+}
+
+function DateInput({ value, onChange }) {
+  return (
+    <div className="relative">
+      <CalendarDays size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" />
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-12 w-full rounded-xl border border-ink-100 bg-white px-11 pr-8 text-sm font-semibold text-ink-500 outline-none hover:bg-ink-50"
+      />
+      <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" />
+    </div>
+  )
+}
+
+function formatPrice(value) {
+  return `$${Number(value).toLocaleString('de-DE')}`
 }
 
 function StatusBadge({ status }) {

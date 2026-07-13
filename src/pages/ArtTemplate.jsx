@@ -3,9 +3,11 @@ import {
   ArrowDown,
   ArrowUp,
   Bell,
+  Camera,
   CalendarDays,
   ChevronDown,
   Download,
+  Paperclip,
   Mail,
   MapPin,
   Menu,
@@ -13,7 +15,9 @@ import {
   MoreVertical,
   Phone,
   Search,
+  Send,
   Settings,
+  Smile,
   Star,
   UserPlus,
   X,
@@ -85,9 +89,34 @@ const newFollowers = [
   { name: 'Mitchell Cooper', role: 'Senior Vice President, Amazon Inc' },
 ]
 
+const chatContacts = [
+  { name: 'Felecia Brown' },
+  { name: 'Regina Cooper', badge: 8 },
+  { name: 'Ronald Robertson', active: true },
+  { name: 'Judith Black' },
+  { name: 'Debra Wilson' },
+  { name: 'Philip Henry' },
+  { name: 'Dustin Williamson', badge: 4 },
+  { name: 'Mitchell Cooper' },
+  { name: 'Calvin Flores' },
+]
+
+const chatMessages = [
+  { text: 'Lorem ipsum dolor sit ame?', time: '09:45am', side: 'right' },
+  { text: 'Consectetur adipiscing elit. Turpis risus commodo sed viverra. :)', time: '09:47am', side: 'left', green: true },
+  { text: 'Sollicitudin don posuere pharetra.', time: '09:48am', side: 'right' },
+  { text: 'Laoreet in elementum nisl, ultrices.', time: '09:47am', side: 'left', green: true },
+  { day: 'Monday' },
+  { text: 'Posuere scelerisque elit duis in. Sapien proin lectus tincidunt.', time: '09:45am', side: 'right' },
+  { text: 'Eget cursus bibendum amet donec.', time: '09:47am', side: 'left', green: true },
+  { text: 'Tellus accumsan, est arcu purus lacus amet. :o', time: '09:48am', side: 'right' },
+  { text: 'Quam consectetur est suspendisse facilisis in viverra laoreet...', time: '09:47am', side: 'left', green: true },
+]
+
 export default function ArtTemplate() {
   const [activeTab, setActiveTab] = useState('Settings')
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
 
   return (
     <div className="min-h-screen bg-ink-50 text-ink-900">
@@ -108,6 +137,8 @@ export default function ArtTemplate() {
       ) : null}
 
       <ProfileSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <ChatLauncher onOpen={() => setChatOpen(true)} />
+      <ChatDrawer open={chatOpen} onClose={() => setChatOpen(false)} />
 
       <div className="min-h-screen lg:pl-[270px]">
         <ArtTemplateHeader activeTab={activeTab} onTabChange={setActiveTab} />
@@ -231,6 +262,167 @@ function ProfileSidebar({ open, onClose }) {
         </ul>
       </div>
     </aside>
+  )
+}
+
+function ChatLauncher({ onOpen }) {
+  return (
+    <>
+      <button
+        type="button"
+        onClick={onOpen}
+        className="fixed bottom-5 right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-brand-dark text-white shadow-lg hover:bg-brand-green lg:hidden"
+        aria-label="Open chat"
+      >
+        <Send size={18} fill="currentColor" />
+      </button>
+      <aside className="fixed right-3 top-20 z-30 hidden w-12 flex-col items-center gap-5 lg:flex">
+        {chatContacts.map((contact) => (
+          <button
+            key={contact.name}
+            type="button"
+            onClick={onOpen}
+            className={`relative rounded-full transition-transform hover:scale-105 ${
+              contact.active ? 'ring-4 ring-white drop-shadow-lg' : ''
+            }`}
+            aria-label={`Open chat with ${contact.name}`}
+          >
+            <Avatar name={contact.name} size="sm" />
+            {contact.badge ? (
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold text-white">
+                {contact.badge}
+              </span>
+            ) : null}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={onOpen}
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-brand-dark bg-brand-green/10 text-xl leading-none text-brand-dark hover:bg-brand-green/20"
+          aria-label="Start new chat"
+        >
+          +
+        </button>
+      </aside>
+    </>
+  )
+}
+
+function ChatDrawer({ open, onClose }) {
+  return (
+    <aside
+      className={`fixed right-0 top-0 z-50 flex h-screen w-full max-w-[492px] flex-col bg-white shadow-2xl transition-transform duration-300 lg:h-[1173px] ${
+        open ? 'translate-x-0' : 'translate-x-full'
+      }`}
+      aria-hidden={!open}
+    >
+      <div className="flex h-16 items-center justify-between border-b border-ink-100 px-6">
+        <button className="text-ink-400 hover:text-ink-700" aria-label="Chat options">
+          <MoreHorizontal size={18} />
+        </button>
+        <button className="text-ink-400 hover:text-ink-700" aria-label="Add image to chat">
+          <Camera size={17} />
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="ml-2 rounded-full bg-ink-50 p-2 text-ink-400 hover:bg-ink-100 hover:text-ink-700"
+          aria-label="Close chat"
+        >
+          <X size={16} />
+        </button>
+      </div>
+
+      <div className="grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)_64px]">
+        <div className="flex min-w-0 flex-col">
+          <div className="flex-1 overflow-y-auto px-6 py-7">
+            <div className="space-y-6">
+              {chatMessages.map((message, index) =>
+                message.day ? (
+                  <div key={message.day} className="flex items-center gap-4 py-2">
+                    <span className="h-px flex-1 bg-ink-100" />
+                    <span className="text-xs font-semibold uppercase text-ink-400">{message.day}</span>
+                    <span className="h-px flex-1 bg-ink-100" />
+                  </div>
+                ) : (
+                  <ChatMessage key={`${message.time}-${index}`} message={message} />
+                ),
+              )}
+            </div>
+            <div className="mt-7 text-center text-sm font-medium text-ink-400">
+              Regina Cooper is typing <span className="tracking-widest text-ink-700">...</span>
+            </div>
+          </div>
+
+          <form
+            className="flex items-center gap-3 border-t border-ink-100 px-5 py-4"
+            onSubmit={(event) => event.preventDefault()}
+          >
+            <button type="button" className="text-ink-400 hover:text-ink-700" aria-label="Attach file">
+              <Paperclip size={18} />
+            </button>
+            <input
+              className="min-w-0 flex-1 bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400"
+              placeholder="Type a message"
+            />
+            <button type="button" className="text-ink-400 hover:text-ink-700" aria-label="Add emoji">
+              <Smile size={18} />
+            </button>
+            <button
+              type="submit"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-dark text-white hover:bg-brand-green"
+              aria-label="Send message"
+            >
+              <Send size={17} fill="currentColor" />
+            </button>
+          </form>
+        </div>
+
+        <div className="flex flex-col items-center gap-5 border-l border-ink-100 bg-ink-50/70 py-8">
+          {chatContacts.map((contact) => (
+            <button
+              key={contact.name}
+              type="button"
+              className={`relative rounded-full ${contact.active ? 'ring-4 ring-white drop-shadow-lg' : ''}`}
+              aria-label={`Select ${contact.name}`}
+            >
+              <Avatar name={contact.name} size="sm" />
+              {contact.badge ? (
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold text-white">
+                  {contact.badge}
+                </span>
+              ) : null}
+            </button>
+          ))}
+          <button className="mt-auto flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-brand-dark bg-brand-green/10 text-xl leading-none text-brand-dark">
+            +
+          </button>
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+function ChatMessage({ message }) {
+  const isRight = message.side === 'right'
+
+  return (
+    <div className={`flex items-end gap-3 ${isRight ? 'justify-end' : 'justify-start'}`}>
+      {!isRight ? <Avatar name="Regina Cooper" size="xs" /> : null}
+      <div className={`max-w-[78%] ${isRight ? 'text-right' : 'text-left'}`}>
+        <div
+          className={`inline-block rounded-2xl px-5 py-3 text-sm leading-relaxed shadow-card ${
+            message.green
+              ? 'bg-brand-dark text-white'
+              : 'bg-ink-50 text-ink-500'
+          }`}
+        >
+          {message.text}
+        </div>
+        <p className="mt-1 text-xs text-ink-400">{message.time}</p>
+      </div>
+      {isRight ? <Avatar name="Felecia Brown" size="xs" /> : null}
+    </div>
   )
 }
 

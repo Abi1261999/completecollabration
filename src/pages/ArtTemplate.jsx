@@ -133,7 +133,7 @@ export default function ArtTemplate() {
             <FollowersPanel />
           </div>
 
-          <div className="mt-7 grid grid-cols-1 gap-7 xl:grid-cols-2">
+          <div className="mt-7 grid grid-cols-1 gap-7 xl:grid-cols-[540px_minmax(0,1fr)]">
             <FollowersGrowthPanel />
             <NewFollowersPanel />
           </div>
@@ -351,12 +351,12 @@ function FollowersPanel() {
 
 function FollowersGrowthPanel() {
   return (
-    <Panel title="Followers Growth" right={<DateRangePill />}>
+    <Panel title="Followers Growth" right={<DateRangePill />} className="xl:h-[402px] xl:w-[540px]">
       <div className="mb-5 flex flex-wrap items-center gap-8">
         <Metric icon={ArrowUp} tone="green" label="Current Week" value="21.800" />
         <Metric icon={ArrowDown} tone="teal" label="Last Week" value="19.400" />
       </div>
-      <div className="relative h-64">
+      <div className="relative h-64 xl:h-[255px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={growth} margin={{ top: 8, right: 8, left: -18, bottom: 0 }} barGap={-16}>
             <CartesianGrid vertical={false} stroke="#EEF2F1" />
@@ -409,9 +409,9 @@ function NewFollowersPanel() {
   )
 }
 
-function Panel({ title, right, children }) {
+function Panel({ title, right, children, className = '' }) {
   return (
-    <section className="min-w-0 rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
+    <section className={`min-w-0 rounded-xl2 border border-ink-100 bg-white p-5 shadow-card ${className}`}>
       <div className="mb-5 flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-ink-700">{title}</h2>
         {right}

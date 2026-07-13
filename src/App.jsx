@@ -24,11 +24,12 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-screen bg-ink-50">
+    <div className="flex h-screen overflow-hidden bg-ink-50">
       <Sidebar />
-      <div className="flex-1 min-w-0">
+      <div className="flex min-h-0 flex-1 flex-col">
         <Topbar />
-        <Routes>
+        <div className="min-h-0 flex-1 overflow-auto">
+          <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/arttemplate" element={<ArtTemplate />} />
           <Route path="/ecommerce" element={<EcommerceProducts />} />
@@ -47,7 +48,8 @@ export default function App() {
                 element={<PlaceholderPage title={label} icon={icon || navItems.find((item) => item.children?.some((child) => child.path === path))?.icon} />}
               />
             ))}
-        </Routes>
+          </Routes>
+        </div>
       </div>
     </div>
   )

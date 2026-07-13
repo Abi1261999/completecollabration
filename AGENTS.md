@@ -12,3 +12,4 @@
 - There is no lint script and no test suite in this repo.
 - The build emits a harmless "chunks larger than 500 kB" warning; this is expected, not an error.
 - Routes: `/` (Dashboard), `/arttemplate` (profile page), and various sidebar links that render a placeholder page.
+- Gotcha: `node_modules/` is committed to the repo but with Windows-only native binaries (esbuild/rollup). On Linux you must run `npm install` (the update script does this) to fetch the correct platform binaries, or `npm run dev`/`npm run build` will fail. This reinstall produces a large `node_modules` working-tree diff — do NOT commit it.

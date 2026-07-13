@@ -109,7 +109,7 @@ export default function ArtTemplate() {
 
       <ProfileSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="min-h-screen lg:pl-64">
+      <div className="min-h-screen lg:pl-[270px]">
         <ArtTemplateHeader activeTab={activeTab} onTabChange={setActiveTab} />
 
         <main className="px-4 py-6 sm:px-6 lg:px-8">
@@ -185,7 +185,7 @@ function ArtTemplateHeader({ activeTab, onTabChange }) {
 function ProfileSidebar({ open, onClose }) {
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-ink-100 bg-white transition-transform duration-200 lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-40 flex w-[270px] flex-col overflow-y-auto border-r border-ink-100 bg-white transition-transform duration-200 lg:bottom-auto lg:h-[1173px] lg:translate-x-0 ${
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >

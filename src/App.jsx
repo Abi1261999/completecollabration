@@ -4,6 +4,7 @@ import Topbar from './components/Topbar'
 import PlaceholderPage from './components/PlaceholderPage'
 import Dashboard from './pages/Dashboard'
 import ArtTemplate from './pages/ArtTemplate'
+import EcommerceProducts from './pages/EcommerceProducts'
 import { navItems } from './navConfig'
 
 export default function App() {
@@ -21,13 +22,16 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/arttemplate" element={<ArtTemplate />} />
+          <Route path="/ecommerce" element={<EcommerceProducts />} />
+          <Route path="/ecommerce/products" element={<EcommerceProducts />} />
           {navItems
-            .filter((item) => item.path !== '/')
+            .flatMap((item) => item.children || [item])
+            .filter((item) => !['/', '/ecommerce', '/ecommerce/products'].includes(item.path))
             .map(({ path, label, icon }) => (
               <Route
                 key={path}
                 path={path}
-                element={<PlaceholderPage title={label} icon={icon} />}
+                element={<PlaceholderPage title={label} icon={icon || navItems.find((item) => item.children?.some((child) => child.path === path))?.icon} />}
               />
             ))}
         </Routes>

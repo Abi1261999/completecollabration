@@ -14,7 +14,16 @@ import {
 export const navItems = [
   { label: 'Dashboard', path: '/', icon: LayoutDashboard },
   { label: 'Task', path: '/task', icon: ListChecks },
-  { label: 'E-Commerce', path: '/ecommerce', icon: ShoppingCart },
+  {
+    label: 'E-Commerce',
+    path: '/ecommerce/products',
+    icon: ShoppingCart,
+    children: [
+      { label: 'Products', path: '/ecommerce/products' },
+      { label: 'Orders', path: '/ecommerce/orders' },
+      { label: 'Customers', path: '/ecommerce/customers' },
+    ],
+  },
   { label: 'Calendar', path: '/calendar', icon: CalendarDays },
   { label: 'Mail', path: '/mail', icon: Mail, badge: 8 },
   { label: 'Chat', path: '/chat', icon: MessageSquare },

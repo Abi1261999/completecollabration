@@ -93,7 +93,7 @@ export default function EcommerceProducts() {
 
 function ProductTabs({ activeTab, onTabChange }) {
   return (
-    <div className="mt-7 flex h-auto w-full max-w-[1110px] flex-wrap items-center gap-7 border-b border-ink-100 text-sm md:h-10">
+    <div className="mt-7 flex h-auto w-full flex-wrap items-center gap-7 border-b border-ink-100 text-sm md:h-10">
       {productTabs.map((tab) => (
         <button
           key={tab.value}
@@ -134,7 +134,7 @@ function ProductsTable({ products: visibleProducts, selectedIds, query, page, on
   }
 
   return (
-    <section className="flex w-full max-w-[1110px] flex-col rounded-xl2 border border-ink-100 bg-white p-5 shadow-card xl:h-[729px]">
+    <section className="flex w-full flex-col rounded-xl2 border border-ink-100 bg-white p-5 shadow-card xl:h-[729px]">
       <div className="mb-5 flex shrink-0 flex-col gap-4 lg:flex-row lg:items-center">
         <div className="flex h-11 min-w-0 flex-1 items-center gap-3 rounded-xl border border-ink-100 px-4">
           <Search size={17} className="text-ink-400" />
@@ -155,8 +155,18 @@ function ProductsTable({ products: visibleProducts, selectedIds, query, page, on
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-auto">
-        <table className="h-full w-full min-w-[900px] text-sm">
+      <div className="min-h-0 flex-1 overflow-auto rounded-lg">
+        <table className="h-full w-full min-w-[980px] table-fixed text-sm">
+          <colgroup>
+            <col className="w-12" />
+            <col className="w-[38%]" />
+            <col className="w-[14%]" />
+            <col className="w-[14%]" />
+            <col className="w-[11%]" />
+            <col className="w-[11%]" />
+            <col className="w-[10%]" />
+            <col className="w-10" />
+          </colgroup>
           <thead>
             <tr className="border-y border-ink-100 text-left text-xs uppercase tracking-wide text-ink-400">
               <th className="w-12 px-2 py-4">
@@ -183,7 +193,7 @@ function ProductsTable({ products: visibleProducts, selectedIds, query, page, on
                     label={`Select ${product.name}`}
                   />
                 </td>
-                <td className="max-w-[340px] px-3 py-4 font-medium text-ink-700">{product.name}</td>
+                <td className="truncate px-3 py-4 font-medium text-ink-700">{product.name}</td>
                 <td className="px-3 py-4 font-medium text-ink-400">{product.number}</td>
                 <td className="px-3 py-4 font-medium text-ink-700">{product.category}</td>
                 <td className="px-3 py-4 text-ink-400">{product.date}</td>

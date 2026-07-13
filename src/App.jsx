@@ -8,6 +8,7 @@ import EcommerceProducts from './pages/EcommerceProducts'
 import EcommerceOrders from './pages/EcommerceOrders'
 import EcommerceCustomers from './pages/EcommerceCustomers'
 import Calendar from './pages/Calendar'
+import Mail from './pages/Mail'
 import { navItems } from './navConfig'
 
 export default function App() {
@@ -15,6 +16,10 @@ export default function App() {
 
   if (pathname === '/arttemplate') {
     return <ArtTemplate />
+  }
+
+  if (pathname === '/mail') {
+    return <Mail />
   }
 
   return (
@@ -32,7 +37,7 @@ export default function App() {
           <Route path="/calendar" element={<Calendar />} />
           {navItems
             .flatMap((item) => item.children || [item])
-            .filter((item) => !['/', '/ecommerce', '/ecommerce/products', '/ecommerce/orders', '/ecommerce/customers', '/calendar'].includes(item.path))
+            .filter((item) => !['/', '/ecommerce', '/ecommerce/products', '/ecommerce/orders', '/ecommerce/customers', '/calendar', '/mail'].includes(item.path))
             .map(({ path, label, icon }) => (
               <Route
                 key={path}

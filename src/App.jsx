@@ -3,6 +3,7 @@ import Sidebar from './components/Sidebar'
 import Topbar from './components/Topbar'
 import PlaceholderPage from './components/PlaceholderPage'
 import Dashboard from './pages/Dashboard'
+import ArtTemplate from './pages/ArtTemplate'
 import { navItems } from './navConfig'
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
         <Topbar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/arttemplate" element={<ArtTemplate />} />
           {navItems
             .filter((item) => item.path !== '/')
             .map(({ path, label, icon }) => (

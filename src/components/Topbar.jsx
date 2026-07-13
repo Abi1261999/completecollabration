@@ -1,3 +1,4 @@
+import { NavLink } from 'react-router-dom'
 import { Menu, Search, Bell } from 'lucide-react'
 
 export default function Topbar() {
@@ -15,12 +16,22 @@ export default function Topbar() {
           <Bell size={18} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-danger" />
         </button>
-        <div className="flex items-center gap-2 pl-2 border-l border-ink-200">
+        <NavLink
+          to="/arttemplate"
+          className={({ isActive }) =>
+            `flex items-center gap-2 pl-2 pr-2 py-1.5 border-l border-ink-200 rounded-lg transition-colors ${
+              isActive
+                ? 'bg-brand-green/15 text-brand-dark'
+                : 'text-ink-900 hover:bg-ink-100'
+            }`
+          }
+          aria-label="Open ArtTemplate profile dashboard"
+        >
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-teal to-brand-green flex items-center justify-center text-white text-xs font-medium">
             AT
           </div>
-          <span className="hidden sm:block text-sm font-medium text-ink-900">ArtTemplate</span>
-        </div>
+          <span className="hidden sm:block text-sm font-medium">ArtTemplate</span>
+        </NavLink>
       </div>
     </header>
   )

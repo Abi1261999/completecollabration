@@ -74,6 +74,8 @@ const newFollowers = [
   { name: 'Mitchell Cooper', role: 'Senior Vice President, Amazon Inc' },
 ]
 
+const sectionTabs = ['Settings', 'Activity', 'Users', 'ArtTemplate']
+
 function DateRangePill() {
   return (
     <button className="flex items-center gap-2 text-sm text-ink-500 bg-white border border-ink-100 rounded-xl px-4 py-2 shadow-card hover:bg-ink-50">
@@ -105,6 +107,26 @@ function InitialsAvatar({ name, className = '' }) {
         .split(' ')
         .map((part) => part[0])
         .join('')}
+    </div>
+  )
+}
+
+function SectionTabs() {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {sectionTabs.map((tab) => (
+        <button
+          key={tab}
+          type="button"
+          className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+            tab === 'ArtTemplate'
+              ? 'bg-brand-green/15 text-brand-dark'
+              : 'text-ink-500 hover:bg-white hover:text-ink-900'
+          }`}
+        >
+          {tab}
+        </button>
+      ))}
     </div>
   )
 }
@@ -252,19 +274,25 @@ function VisitsTooltip({ active, payload }) {
 export default function ArtTemplate() {
   return (
     <div className="p-4 md:p-8 space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold text-ink-900">Overview</h1>
-        <div className="flex items-center gap-3">
-          <button
-            className="w-10 h-10 rounded-xl bg-white border border-ink-100 shadow-card flex items-center justify-center text-ink-500 hover:bg-ink-50"
-            aria-label="Download overview"
-          >
-            <Download size={17} />
-          </button>
-          <button className="flex items-center gap-2 text-sm text-ink-500 bg-white border border-ink-100 rounded-xl px-4 py-2 shadow-card hover:bg-ink-50">
-            Last 7 days
-            <ChevronDown size={14} />
-          </button>
+      <div className="space-y-5">
+        <SectionTabs />
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-brand-dark">ArtTemplate</p>
+            <h1 className="text-2xl font-semibold text-ink-900">Overview</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="w-10 h-10 rounded-xl bg-white border border-ink-100 shadow-card flex items-center justify-center text-ink-500 hover:bg-ink-50"
+              aria-label="Download overview"
+            >
+              <Download size={17} />
+            </button>
+            <button className="flex items-center gap-2 text-sm text-ink-500 bg-white border border-ink-100 rounded-xl px-4 py-2 shadow-card hover:bg-ink-50">
+              Last 7 days
+              <ChevronDown size={14} />
+            </button>
+          </div>
         </div>
       </div>
 

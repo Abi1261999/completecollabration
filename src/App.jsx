@@ -5,6 +5,7 @@ import PlaceholderPage from './components/PlaceholderPage'
 import Dashboard from './pages/Dashboard'
 import ArtTemplate from './pages/ArtTemplate'
 import EcommerceProducts from './pages/EcommerceProducts'
+import EcommerceOrders from './pages/EcommerceOrders'
 import { navItems } from './navConfig'
 
 export default function App() {
@@ -24,9 +25,10 @@ export default function App() {
           <Route path="/arttemplate" element={<ArtTemplate />} />
           <Route path="/ecommerce" element={<EcommerceProducts />} />
           <Route path="/ecommerce/products" element={<EcommerceProducts />} />
+          <Route path="/ecommerce/orders" element={<EcommerceOrders />} />
           {navItems
             .flatMap((item) => item.children || [item])
-            .filter((item) => !['/', '/ecommerce', '/ecommerce/products'].includes(item.path))
+            .filter((item) => !['/', '/ecommerce', '/ecommerce/products', '/ecommerce/orders'].includes(item.path))
             .map(({ path, label, icon }) => (
               <Route
                 key={path}

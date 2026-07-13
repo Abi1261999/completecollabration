@@ -1,19 +1,28 @@
+import { useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
-  Cake,
+  Bell,
   CalendarDays,
   ChevronDown,
   Download,
   Mail,
   MapPin,
+  Menu,
   MoreHorizontal,
+  MoreVertical,
   Phone,
+  Search,
+  Settings,
+  Star,
   UserPlus,
+  X,
 } from 'lucide-react'
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   Cell,
   Pie,
@@ -24,6 +33,8 @@ import {
   YAxis,
 } from 'recharts'
 
+const tabs = ['Settings', 'Activity', 'Users']
+
 const overviewStats = [
   { label: 'Total Visitors', value: '20.500', change: '4.85%', icon: ArrowUp, positive: true, tone: 'green' },
   { label: 'Total Followers', value: '21.800', change: '5.25%', icon: ArrowDown, positive: false, tone: 'teal' },
@@ -33,22 +44,12 @@ const overviewStats = [
 
 const visits = [
   { day: 'Mon', visitors: 2000 },
-  { day: 'Tue', visitors: 1400 },
+  { day: 'Tue', visitors: 1300 },
   { day: 'Wed', visitors: 3100 },
-  { day: 'Thu', visitors: 1500 },
+  { day: 'Thu', visitors: 1400 },
   { day: 'Fri', visitors: 2000 },
-  { day: 'Sat', visitors: 7800 },
-  { day: 'Sun', visitors: 2100 },
-]
-
-const followersGrowth = [
-  { day: 'Mon', current: 2400, previous: 1600 },
-  { day: 'Tue', current: 4300, previous: 2600 },
-  { day: 'Wed', current: 3900, previous: 3100 },
-  { day: 'Thu', current: 6200, previous: 4600 },
-  { day: 'Fri', current: 8100, previous: 5800 },
-  { day: 'Sat', current: 7300, previous: 6400 },
-  { day: 'Sun', current: 9200, previous: 7000 },
+  { day: 'Sat', visitors: 7600 },
+  { day: 'Sun', visitors: 2000 },
 ]
 
 const socialChannels = [
@@ -56,6 +57,16 @@ const socialChannels = [
   { name: 'Twitter', value: '7.8k', amount: 7.8, color: '#F8C93D', dot: 'bg-yellow-400' },
   { name: 'Instagram', value: '5.8k', amount: 5.8, color: '#1E9B45', dot: 'bg-brand-dark' },
   { name: 'YouTube', value: '4.7k', amount: 4.7, color: '#FF7067', dot: 'bg-red-400' },
+]
+
+const growth = [
+  { day: 'Mon', current: 4200, previous: 0 },
+  { day: 'Tue', current: 0, previous: 1100 },
+  { day: 'Wed', current: 3600, previous: 0 },
+  { day: 'Thu', current: 0, previous: 2100 },
+  { day: 'Fri', current: 3000, previous: 0 },
+  { day: 'Sat', current: 5600, previous: 0 },
+  { day: 'Sun', current: 0, previous: 1600 },
 ]
 
 const favorites = [
@@ -74,93 +85,180 @@ const newFollowers = [
   { name: 'Mitchell Cooper', role: 'Senior Vice President, Amazon Inc' },
 ]
 
-const sectionTabs = ['Settings', 'Activity', 'Users', 'ArtTemplate']
+export default function ArtTemplate() {
+  const [activeTab, setActiveTab] = useState('Settings')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
-function DateRangePill() {
   return (
-    <button className="flex items-center gap-2 text-sm text-ink-500 bg-white border border-ink-100 rounded-xl px-4 py-2 shadow-card hover:bg-ink-50">
-      <CalendarDays size={15} />
-      19 Aug - 25 Aug
-      <ChevronDown size={14} />
-    </button>
-  )
-}
+    <div className="min-h-screen bg-ink-50 text-ink-900">
+      <button
+        className="fixed left-4 top-4 z-40 rounded-xl bg-white p-2 text-ink-700 shadow-card border border-ink-100 lg:hidden"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open ArtTemplate profile panel"
+      >
+        <Menu size={20} />
+      </button>
 
-function Panel({ title, right, children, className = '' }) {
-  return (
-    <section className={`bg-white rounded-xl2 border border-ink-100 shadow-card p-5 ${className}`}>
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <h2 className="font-medium text-ink-900">{title}</h2>
-        {right}
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function InitialsAvatar({ name, className = '' }) {
-  return (
-    <div
-      className={`rounded-full bg-gradient-to-br from-brand-teal to-brand-green flex items-center justify-center text-white font-medium ${className}`}
-    >
-      {name
-        .split(' ')
-        .map((part) => part[0])
-        .join('')}
-    </div>
-  )
-}
-
-function SectionTabs() {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {sectionTabs.map((tab) => (
+      {sidebarOpen ? (
         <button
-          key={tab}
-          type="button"
-          className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
-            tab === 'ArtTemplate'
-              ? 'bg-brand-green/15 text-brand-dark'
-              : 'text-ink-500 hover:bg-white hover:text-ink-900'
-          }`}
-        >
-          {tab}
-        </button>
-      ))}
+          className="fixed inset-0 z-30 bg-ink-900/30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close ArtTemplate profile overlay"
+        />
+      ) : null}
+
+      <ProfileSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <div className="min-h-screen lg:pl-64">
+        <ArtTemplateHeader activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <main className="px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mb-7 flex items-center justify-between gap-4">
+            <h1 className="text-2xl font-semibold text-ink-900">Overview</h1>
+            <div className="flex items-center gap-3">
+              <IconButton label="Download overview">
+                <Download size={17} />
+              </IconButton>
+              <button className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm text-ink-500 shadow-card border border-ink-100 hover:bg-ink-50">
+                Last 7 days
+                <ChevronDown size={14} />
+              </button>
+            </div>
+          </div>
+
+          <OverviewStats />
+
+          <div className="mt-7 grid grid-cols-1 gap-7 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <VisitsPanel />
+            <FollowersPanel />
+          </div>
+
+          <div className="mt-7 grid grid-cols-1 gap-7 xl:grid-cols-2">
+            <FollowersGrowthPanel />
+            <NewFollowersPanel />
+          </div>
+        </main>
+      </div>
     </div>
+  )
+}
+
+function ArtTemplateHeader({ activeTab, onTabChange }) {
+  return (
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-ink-100 bg-white/95 px-4 pl-16 shadow-card backdrop-blur sm:px-6 lg:pl-8">
+      <nav className="flex items-center gap-2 overflow-x-auto">
+        {tabs.map((tab) => (
+          <button
+            key={tab}
+            type="button"
+            onClick={() => onTabChange(tab)}
+            className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === tab
+                ? 'bg-brand-green/15 text-brand-dark'
+                : 'text-ink-500 hover:bg-ink-50 hover:text-ink-900'
+            }`}
+          >
+            {tab === 'Settings' ? <Settings size={14} className="mr-1.5 inline" /> : null}
+            {tab}
+          </button>
+        ))}
+      </nav>
+
+      <div className="flex items-center gap-2 sm:gap-4">
+        <IconButton label="Search">
+          <Search size={18} />
+        </IconButton>
+        <IconButton label="Notifications">
+          <Bell size={18} />
+        </IconButton>
+        <div className="hidden h-9 border-l border-ink-100 sm:block" />
+        <button className="flex items-center gap-2 rounded-xl py-1 pl-1 pr-2 text-sm font-medium text-ink-900 hover:bg-ink-50">
+          <Avatar name="Felecia Brown" size="sm" />
+          <span className="hidden sm:inline">ArtTemplate</span>
+          <ChevronDown size={14} className="hidden sm:block text-ink-500" />
+        </button>
+      </div>
+    </header>
+  )
+}
+
+function ProfileSidebar({ open, onClose }) {
+  return (
+    <aside
+      className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-ink-100 bg-white transition-transform duration-200 lg:translate-x-0 ${
+        open ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
+      <button
+        className="absolute right-3 top-3 rounded-lg p-1 text-ink-500 hover:bg-ink-50 lg:hidden"
+        onClick={onClose}
+        aria-label="Close ArtTemplate profile panel"
+      >
+        <X size={18} />
+      </button>
+
+      <div className="px-8 pb-7 pt-16 text-center">
+        <Avatar name="Felecia Brown" size="xl" className="mx-auto mb-4" />
+        <h2 className="text-sm font-medium text-ink-900">Felecia Brown</h2>
+        <p className="mt-3 text-sm text-ink-400">Project Manager</p>
+        <button className="mt-5 rounded-lg bg-brand-dark px-7 py-2.5 text-sm font-medium text-white shadow-card hover:bg-brand-green">
+          Edit profile
+        </button>
+      </div>
+
+      <div className="mx-8 border-t border-ink-100 py-6">
+        <h3 className="mb-5 text-xs font-semibold uppercase tracking-wide text-ink-700">Info</h3>
+        <div className="space-y-4">
+          <InfoRow icon={Mail} label="Email" value="example@mail.com" />
+          <InfoRow icon={Phone} label="Phone" value="+123-4567-8800" />
+          <InfoRow label="Birthday" value="17 March, 1995" />
+          <InfoRow icon={MapPin} label="Location" value="New York, NY" />
+        </div>
+      </div>
+
+      <div className="mx-8 flex-1 overflow-y-auto border-t border-ink-100 py-6">
+        <h3 className="mb-5 text-xs font-semibold uppercase tracking-wide text-ink-700">Favorites</h3>
+        <ul className="space-y-4">
+          {favorites.map((person) => (
+            <li key={person.name} className="flex items-center gap-3">
+              <Avatar name={person.name} size="xs" />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-ink-700">{person.name}</p>
+                <p className="truncate text-xs text-ink-400">{person.role}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </aside>
   )
 }
 
 function OverviewStats() {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-0 overflow-hidden rounded-xl2 border border-ink-100 bg-white shadow-card">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
       {overviewStats.map(({ label, value, change, icon: Icon, positive, tone }) => (
-        <div
-          key={label}
-          className="flex items-center gap-4 border-b border-ink-100 p-5 last:border-b-0 sm:odd:border-r xl:border-b-0 xl:border-r xl:last:border-r-0"
-        >
-          <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-              tone === 'green' ? 'bg-brand-green/15 text-brand-dark' : 'bg-brand-teal/15 text-brand-teal'
-            }`}
-          >
-            <Icon size={18} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm text-ink-400">{label}</p>
-            <div className="flex items-end gap-1.5">
-              <span className="text-2xl font-semibold leading-none text-ink-900">{value}</span>
-              <span
-                className={`flex items-center text-xs font-medium leading-none ${
-                  positive ? 'text-brand-green' : 'text-danger'
-                }`}
-              >
-                {positive ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
-                {change}
-              </span>
+        <section key={label} className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
+          <div className="flex items-center gap-4">
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                tone === 'green' ? 'bg-brand-green/15 text-brand-dark' : 'bg-brand-teal/15 text-brand-teal'
+              }`}
+            >
+              <Icon size={18} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm text-ink-400">{label}</p>
+              <div className="flex items-end gap-1.5">
+                <span className="text-2xl font-semibold leading-none text-ink-900">{value}</span>
+                <span className={`flex items-center text-xs font-medium ${positive ? 'text-brand-green' : 'text-danger'}`}>
+                  {positive ? <ArrowUp size={11} /> : <ArrowDown size={11} />}
+                  {change}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
       ))}
     </div>
   )
@@ -168,8 +266,8 @@ function OverviewStats() {
 
 function VisitsPanel() {
   return (
-    <Panel title="Visits" right={<DateRangePill />} className="min-w-0">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-6">
+    <Panel title="Visits" right={<DateRangePill />}>
+      <div className="mb-6 grid grid-cols-1 gap-5 sm:grid-cols-3">
         <Metric icon={ArrowDown} tone="teal" label="Min. Visits" value="1.400" />
         <Metric icon={MinusIcon} tone="greenSoft" label="Avg. Visits" value="3.100" />
         <Metric icon={ArrowUp} tone="green" label="Max. Visits" value="9.500" />
@@ -179,18 +277,12 @@ function VisitsPanel() {
           <AreaChart data={visits} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
             <defs>
               <linearGradient id="visitsFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#16A34A" stopOpacity={0.16} />
+                <stop offset="5%" stopColor="#16A34A" stopOpacity={0.15} />
                 <stop offset="95%" stopColor="#16A34A" stopOpacity={0.08} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} stroke="#EEF2F1" />
-            <XAxis
-              dataKey="day"
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: '#9CA3AF', fontSize: 12 }}
-              dy={8}
-            />
+            <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={8} />
             <YAxis
               domain={[0, 10000]}
               ticks={[0, 1000, 2000, 5000, 10000]}
@@ -219,7 +311,7 @@ function VisitsPanel() {
 function FollowersPanel() {
   return (
     <Panel title="Followers" right={<button className="text-ink-400"><MoreHorizontal size={18} /></button>}>
-      <div className="relative mx-auto mb-6 h-44 w-44">
+      <div className="relative mx-auto mb-7 h-44 w-44">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -244,8 +336,7 @@ function FollowersPanel() {
           <p className="text-sm text-ink-400">Total</p>
         </div>
       </div>
-
-      <div className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-ink-100 pt-5">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-5 border-t border-ink-100 pt-5">
         {socialChannels.map((channel) => (
           <div key={channel.name} className="flex items-center gap-2 text-sm text-ink-400">
             <span className={`h-2 w-2 rounded-full ${channel.dot}`} />
@@ -258,149 +349,85 @@ function FollowersPanel() {
   )
 }
 
-function VisitsTooltip({ active, payload }) {
-  if (!active || !payload?.length) {
-    return null
-  }
-
+function FollowersGrowthPanel() {
   return (
-    <div className="rounded-xl bg-white px-5 py-3 text-center shadow-lg border border-ink-100">
-      <p className="text-sm font-medium text-ink-900">Visitors: 3.100</p>
-      <p className="text-xs text-ink-400">21 August, 2019</p>
-    </div>
+    <Panel title="Followers Growth" right={<DateRangePill />}>
+      <div className="mb-5 flex flex-wrap items-center gap-8">
+        <Metric icon={ArrowUp} tone="green" label="Current Week" value="21.800" />
+        <Metric icon={ArrowDown} tone="teal" label="Last Week" value="19.400" />
+      </div>
+      <div className="relative h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={growth} margin={{ top: 8, right: 8, left: -18, bottom: 0 }} barGap={-16}>
+            <CartesianGrid vertical={false} stroke="#EEF2F1" />
+            <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} dy={8} />
+            <YAxis
+              domain={[0, 10000]}
+              ticks={[0, 1000, 2000, 5000, 10000]}
+              tickFormatter={(value) => (value === 0 ? '0' : `${value / 1000}K`)}
+              tickLine={false}
+              axisLine={false}
+              tick={{ fill: '#9CA3AF', fontSize: 12 }}
+            />
+            <Tooltip cursor={{ fill: 'rgba(34, 197, 94, 0.06)' }} />
+            <Bar dataKey="previous" fill="#DDF4E5" radius={[12, 12, 12, 12]} barSize={18} name="Last Week" />
+            <Bar dataKey="current" fill="#1E9B45" radius={[12, 12, 12, 12]} barSize={18} name="Current Week" />
+          </BarChart>
+        </ResponsiveContainer>
+        <div className="pointer-events-none absolute left-[63%] top-[32%] hidden -translate-x-1/2 rounded-xl bg-white px-3 py-1.5 text-xs font-medium text-ink-500 shadow-lg sm:block">
+          2150
+        </div>
+        <div className="pointer-events-none absolute left-[72%] top-[26%] hidden h-6 w-6 items-center justify-center rounded-full bg-brand-dark text-white shadow-lg sm:flex">
+          <Star size={13} fill="currentColor" />
+        </div>
+      </div>
+    </Panel>
   )
 }
 
-export default function ArtTemplate() {
+function NewFollowersPanel() {
   return (
-    <div className="p-4 md:p-8 space-y-6">
-      <div className="space-y-5">
-        <SectionTabs />
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-brand-dark">ArtTemplate</p>
-            <h1 className="text-2xl font-semibold text-ink-900">Overview</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              className="w-10 h-10 rounded-xl bg-white border border-ink-100 shadow-card flex items-center justify-center text-ink-500 hover:bg-ink-50"
-              aria-label="Download overview"
-            >
-              <Download size={17} />
+    <Panel title="New Followers" right={<DateRangePill />}>
+      <ul className="space-y-4">
+        {newFollowers.map((person) => (
+          <li key={person.name} className="flex items-center gap-4">
+            <Avatar name={person.name} size="xs" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-ink-700">{person.name}</p>
+              <p className="truncate text-xs text-ink-400">{person.role}</p>
+            </div>
+            <button className="rounded-lg bg-brand-green/15 px-5 py-1.5 text-xs font-medium text-brand-dark hover:bg-brand-green/20">
+              Follow
             </button>
-            <button className="flex items-center gap-2 text-sm text-ink-500 bg-white border border-ink-100 rounded-xl px-4 py-2 shadow-card hover:bg-ink-50">
-              Last 7 days
-              <ChevronDown size={14} />
+            <button className="text-ink-400 hover:text-ink-700" aria-label={`More actions for ${person.name}`}>
+              <MoreVertical size={17} />
             </button>
-          </div>
-        </div>
-      </div>
-
-      <OverviewStats />
-
-      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_320px] gap-6">
-        <VisitsPanel />
-        <FollowersPanel />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-5">
-        <div className="space-y-5">
-          <Panel
-            title="Profile"
-            right={<button className="text-sm font-medium text-brand-dark hover:text-brand-green">Edit profile</button>}
-          >
-            <div className="flex flex-col items-center text-center">
-              <InitialsAvatar name="Felecia Brown" className="w-24 h-24 text-2xl mb-4" />
-              <h2 className="text-xl font-semibold text-ink-900">Felecia Brown</h2>
-              <p className="text-sm text-ink-500">Project Manager</p>
-            </div>
-
-            <div className="mt-6 pt-5 border-t border-ink-100 space-y-4">
-              <InfoRow icon={Mail} label="Email" value="example@mail.com" />
-              <InfoRow icon={Phone} label="Phone" value="+123-4567-8800" />
-              <InfoRow icon={Cake} label="Birthday" value="17 March, 1995" />
-              <InfoRow icon={MapPin} label="Location" value="New York, NY" />
-            </div>
-          </Panel>
-
-          <Panel title="Favorites" right={<button className="text-ink-400"><MoreHorizontal size={18} /></button>}>
-            <PeopleList people={favorites} />
-          </Panel>
-        </div>
-
-        <div className="space-y-5">
-          <Panel title="Followers Growth" right={<DateRangePill />}>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={followersGrowth}>
-                  <defs>
-                    <linearGradient id="currentFollowers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#16A34A" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#16A34A" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="previousFollowers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2DD4BF" stopOpacity={0.22} />
-                      <stop offset="95%" stopColor="#2DD4BF" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid vertical={false} stroke="#F0F0F0" />
-                  <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fill: '#9CA3AF', fontSize: 12 }} />
-                  <YAxis
-                    tickFormatter={(value) => `${value / 1000}K`}
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fill: '#9CA3AF', fontSize: 12 }}
-                  />
-                  <Tooltip />
-                  <Area
-                    type="monotone"
-                    dataKey="previous"
-                    stroke="#2DD4BF"
-                    fill="url(#previousFollowers)"
-                    strokeWidth={2}
-                    name="Last Week"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="current"
-                    stroke="#16A34A"
-                    fill="url(#currentFollowers)"
-                    strokeWidth={2}
-                    name="Current Week"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex flex-wrap items-center gap-5 mt-4 text-sm">
-              <LegendDot label="Current Week" value="21.800" color="bg-brand-dark" />
-              <LegendDot label="Last Week" value="19.400" color="bg-brand-teal" />
-              <div className="ml-auto text-right">
-                <p className="text-2xl font-semibold text-ink-900">2150</p>
-                <p className="text-xs text-ink-400">New Followers</p>
-              </div>
-            </div>
-          </Panel>
-
-          <Panel title="New Followers" right={<DateRangePill />}>
-            <PeopleList people={newFollowers} showAction />
-          </Panel>
-        </div>
-      </div>
-    </div>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   )
 }
 
-function InfoRow({ icon: Icon, label, value }) {
+function Panel({ title, right, children }) {
   return (
-    <div className="flex items-start gap-3">
-      <div className="w-9 h-9 rounded-lg bg-ink-50 flex items-center justify-center text-ink-400">
-        <Icon size={17} />
+    <section className="min-w-0 rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <h2 className="text-lg font-semibold text-ink-700">{title}</h2>
+        {right}
       </div>
-      <div>
-        <p className="text-xs text-ink-400">{label}</p>
-        <p className="text-sm font-medium text-ink-900">{value}</p>
-      </div>
-    </div>
+      {children}
+    </section>
+  )
+}
+
+function DateRangePill() {
+  return (
+    <button className="flex items-center gap-2 rounded-xl border border-ink-100 bg-white px-3 py-2 text-sm text-ink-500 shadow-card hover:bg-ink-50">
+      <CalendarDays size={15} />
+      19 Aug - 25 Aug
+      <ChevronDown size={14} />
+    </button>
   )
 }
 
@@ -413,13 +440,69 @@ function Metric({ icon: Icon, label, value, tone = 'green' }) {
 
   return (
     <div className="flex items-center gap-3">
-      <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${toneClass}`}>
+      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${toneClass}`}>
         <Icon size={16} />
       </div>
       <div>
-        <p className="text-xl font-semibold leading-none text-ink-900">{value}</p>
-        <p className="text-xs text-ink-400 mt-1">{label}</p>
+        <p className="text-lg font-semibold leading-none text-ink-900">{value}</p>
+        <p className="mt-1 text-xs text-ink-400">{label}</p>
       </div>
+    </div>
+  )
+}
+
+function InfoRow({ icon: Icon, label, value }) {
+  return (
+    <div>
+      <p className="mb-1 text-[11px] font-medium uppercase text-ink-400">{label}</p>
+      <div className="flex items-center gap-2 text-sm text-ink-700">
+        {Icon ? <Icon size={14} className="text-ink-400" /> : null}
+        <span>{value}</span>
+      </div>
+    </div>
+  )
+}
+
+function Avatar({ name, size = 'md', className = '' }) {
+  const sizes = {
+    xs: 'h-9 w-9 text-xs',
+    sm: 'h-9 w-9 text-xs',
+    md: 'h-12 w-12 text-sm',
+    xl: 'h-28 w-28 text-2xl',
+  }
+
+  return (
+    <div
+      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#E98B70] to-[#C65E43] font-semibold text-white ${sizes[size]} ${className}`}
+    >
+      {name
+        .split(' ')
+        .map((part) => part[0])
+        .join('')}
+    </div>
+  )
+}
+
+function IconButton({ label, children }) {
+  return (
+    <button
+      className="flex h-10 w-10 items-center justify-center rounded-xl text-ink-500 hover:bg-ink-50"
+      aria-label={label}
+    >
+      {children}
+    </button>
+  )
+}
+
+function VisitsTooltip({ active }) {
+  if (!active) {
+    return null
+  }
+
+  return (
+    <div className="rounded-xl border border-ink-100 bg-white px-5 py-3 text-center shadow-lg">
+      <p className="text-sm font-medium text-ink-900">Visitors: 3.100</p>
+      <p className="text-xs text-ink-400">21 August, 2019</p>
     </div>
   )
 }
@@ -429,41 +512,5 @@ function MinusIcon(props) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" {...props}>
       <path d="M6 12h12" />
     </svg>
-  )
-}
-
-function PeopleList({ people, showAction = false }) {
-  return (
-    <ul className="space-y-4">
-      {people.map((person) => (
-        <li key={person.name} className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <InitialsAvatar name={person.name} className="w-10 h-10 text-xs shrink-0" />
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-ink-900 truncate">{person.name}</p>
-              <p className="text-xs text-ink-400 truncate">{person.role}</p>
-            </div>
-          </div>
-          {showAction ? (
-            <button className="shrink-0 flex items-center gap-1 rounded-lg bg-brand-green/15 px-3 py-1.5 text-xs font-medium text-brand-dark hover:bg-brand-green/20">
-              <UserPlus size={13} />
-              Follow
-            </button>
-          ) : null}
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function LegendDot({ label, value, color }) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className={`w-2 h-2 rounded-full ${color}`} />
-      <div>
-        <p className="font-medium text-ink-900">{value}</p>
-        <p className="text-xs text-ink-400">{label}</p>
-      </div>
-    </div>
   )
 }

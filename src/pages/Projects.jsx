@@ -1,15 +1,54 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
+  CalendarClock,
+  Check,
+  ChevronDown,
   Clock,
   Grid2X2,
   List,
   MoreVertical,
+  Pencil,
   Plus,
   Search,
   SlidersHorizontal,
+  Trash2,
+  UserPlus,
+  X,
 } from 'lucide-react'
 
 const TEAM_MEMBERS = ['Shane Black', 'Jane Wilson', 'Ronald Robertson', 'Judith Black', 'Calvin Flores']
+
+const dueDateOptions = [
+  { id: 'anytime', label: 'Due anytime' },
+  { id: 'week', label: 'Due this week' },
+  { id: 'soon', label: 'Due in 5 days' },
+  { id: 'overdue', label: 'Overdue' },
+]
+
+const projectStatusOptions = [
+  { id: 'All', label: 'Any status' },
+  { id: 'Started', label: 'Started' },
+  { id: 'On Hold', label: 'On Hold' },
+  { id: 'Completed', label: 'Completed' },
+]
+
+const emptyFilters = {
+  search: '',
+  members: [],
+  dueDate: 'anytime',
+  status: 'All',
+}
+
+const filterPanelDefaults = {
+  search: '',
+  members: ['Shane Black'],
+  dueDate: 'anytime',
+  status: 'Completed',
+}
+
+function assignMembers(teamSize, seed = 0) {
+  return Array.from({ length: teamSize }, (_, index) => TEAM_MEMBERS[(seed + index) % TEAM_MEMBERS.length])
+}
 
 const featuredProjects = [
   {
@@ -23,6 +62,7 @@ const featuredProjects = [
     urgent: false,
     status: 'Started',
     teamSize: 3,
+    members: assignMembers(3, 0),
   },
   {
     id: 2,
@@ -35,6 +75,7 @@ const featuredProjects = [
     urgent: false,
     status: 'Started',
     teamSize: 3,
+    members: assignMembers(3, 0),
   },
   {
     id: 3,
@@ -47,6 +88,7 @@ const featuredProjects = [
     urgent: false,
     status: 'Completed',
     teamSize: 2,
+    members: assignMembers(2, 2),
   },
   {
     id: 4,
@@ -59,6 +101,7 @@ const featuredProjects = [
     urgent: true,
     status: 'Started',
     teamSize: 3,
+    members: assignMembers(3, 0),
   },
   {
     id: 5,
@@ -71,6 +114,7 @@ const featuredProjects = [
     urgent: true,
     status: 'Started',
     teamSize: 2,
+    members: assignMembers(2, 4),
   },
   {
     id: 6,
@@ -83,6 +127,7 @@ const featuredProjects = [
     urgent: false,
     status: 'Started',
     teamSize: 2,
+    members: assignMembers(2, 5),
   },
   {
     id: 7,
@@ -95,6 +140,7 @@ const featuredProjects = [
     urgent: false,
     status: 'Started',
     teamSize: 3,
+    members: assignMembers(3, 0),
   },
   {
     id: 8,
@@ -107,6 +153,7 @@ const featuredProjects = [
     urgent: false,
     status: 'Completed',
     teamSize: 2,
+    members: assignMembers(2, 7),
   },
   {
     id: 9,
@@ -119,6 +166,7 @@ const featuredProjects = [
     urgent: false,
     status: 'Started',
     teamSize: 3,
+    members: assignMembers(3, 0),
   },
 ]
 
@@ -173,6 +221,7 @@ function buildProjects() {
         urgent: index % 4 === 0,
         status,
         teamSize: 2 + (index % 2),
+        members: assignMembers(2 + (index % 2), index),
       })
       currentCounts[status] += 1
       id += 1
@@ -183,6 +232,41 @@ function buildProjects() {
 }
 
 const projects = buildProjects()
+
+function projectMatchesDueDate(project, dueDate) {
+  if (dueDate === 'anytime') return true
+  if (dueDate === 'week') return project.timeLeft.includes('1 week')
+  if (dueDate === 'soon') return project.timeLeft.includes('5 days') || project.timeLeft.includes('3 days')
+  if (dueDate === 'overdue') return project.urgent
+  return true
+}
+
+function projectMatchesFilters(project, filters) {
+  const filterQuery = filters.search.trim().toLowerCase()
+  if (
+    filterQuery &&
+    !project.title.toLowerCase().includes(filterQuery) &&
+    !project.company.toLowerCase().includes(filterQuery) &&
+    !project.description.toLowerCase().includes(filterQuery)
+  ) {
+    return false
+  }
+
+  if (filters.members.length > 0) {
+    const hasMember = filters.members.some((member) => project.members.includes(member))
+    if (!hasMember) return false
+  }
+
+  if (filters.status !== 'All' && project.status !== filters.status) {
+    return false
+  }
+
+  if (!projectMatchesDueDate(project, filters.dueDate)) {
+    return false
+  }
+
+  return true
+}
 
 const statusTabs = [
   { label: 'All', value: 'All' },
@@ -196,11 +280,8 @@ export default function Projects() {
   const [viewMode, setViewMode] = useState('grid')
   const [query, setQuery] = useState('')
   const [filterOpen, setFilterOpen] = useState(false)
-  const [appliedFilters, setAppliedFilters] = useState({
-    minProgress: 0,
-    maxProgress: 100,
-    urgentOnly: false,
-  })
+  const [appliedFilters, setAppliedFilters] = useState(emptyFilters)
+  const [draftFilters, setDraftFilters] = useState(filterPanelDefaults)
   const [openMenuId, setOpenMenuId] = useState(null)
 
   const tabCounts = useMemo(() => {
@@ -222,16 +303,44 @@ export default function Projects() {
         project.title.toLowerCase().includes(normalizedQuery) ||
         project.company.toLowerCase().includes(normalizedQuery) ||
         project.description.toLowerCase().includes(normalizedQuery)
-      const matchesProgress =
-        project.progress >= appliedFilters.minProgress && project.progress <= appliedFilters.maxProgress
-      const matchesUrgent = !appliedFilters.urgentOnly || project.urgent
 
-      return matchesTab && matchesQuery && matchesProgress && matchesUrgent
+      return matchesTab && matchesQuery && projectMatchesFilters(project, appliedFilters)
     })
   }, [activeTab, appliedFilters, query])
 
+  const openFilterPanel = () => {
+    setDraftFilters(filterPanelDefaults)
+    setFilterOpen(true)
+    setOpenMenuId(null)
+  }
+
+  const applyFilters = () => {
+    setAppliedFilters(draftFilters)
+    setFilterOpen(false)
+  }
+
+  const resetFilters = () => {
+    setDraftFilters(emptyFilters)
+    setAppliedFilters(emptyFilters)
+    setFilterOpen(false)
+  }
+
   return (
-    <div className="p-4 md:p-8">
+    <div className="relative p-4 md:p-8">
+      {filterOpen ? (
+        <>
+          <button className="fixed inset-0 z-30 bg-ink-900/40" aria-label="Close filter panel" onClick={() => setFilterOpen(false)} />
+          <FilterPanel
+            filters={draftFilters}
+            memberOptions={TEAM_MEMBERS}
+            onChange={setDraftFilters}
+            onClose={() => setFilterOpen(false)}
+            onApply={applyFilters}
+            onReset={resetFilters}
+          />
+        </>
+      ) : null}
+
       <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-semibold text-ink-900">Projects</h1>
@@ -250,7 +359,7 @@ export default function Projects() {
             className={`flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 bg-white text-ink-500 shadow-card hover:bg-ink-50 ${
               filterOpen ? 'text-brand-dark ring-2 ring-brand-dark/20' : ''
             }`}
-            onClick={() => setFilterOpen((open) => !open)}
+            onClick={openFilterPanel}
             aria-expanded={filterOpen}
             aria-label="Filter projects"
           >
@@ -281,14 +390,6 @@ export default function Projects() {
         </div>
       </div>
 
-      {filterOpen ? (
-        <FilterPanel
-          filters={appliedFilters}
-          onChange={setAppliedFilters}
-          onClose={() => setFilterOpen(false)}
-        />
-      ) : null}
-
       <div className="mb-5 flex items-center gap-3">
         <div className="relative flex h-11 min-w-0 flex-1 max-w-md items-center gap-3 rounded-xl border border-ink-100 bg-white px-4 shadow-card">
           <Search size={17} className="text-ink-400" />
@@ -316,7 +417,10 @@ export default function Projects() {
               key={project.id}
               project={project}
               menuOpen={openMenuId === project.id}
-              onMenuToggle={() => setOpenMenuId((current) => (current === project.id ? null : project.id))}
+              onMenuToggle={() => {
+                setOpenMenuId((current) => (current === project.id ? null : project.id))
+                setFilterOpen(false)
+              }}
               onMenuClose={() => setOpenMenuId(null)}
             />
           ))}
@@ -340,7 +444,10 @@ export default function Projects() {
                   key={project.id}
                   project={project}
                   menuOpen={openMenuId === project.id}
-                  onMenuToggle={() => setOpenMenuId((current) => (current === project.id ? null : project.id))}
+                  onMenuToggle={() => {
+                setOpenMenuId((current) => (current === project.id ? null : project.id))
+                setFilterOpen(false)
+              }}
                   onMenuClose={() => setOpenMenuId(null)}
                 />
               ))}
@@ -403,7 +510,7 @@ function ProjectCard({ project, menuOpen, onMenuToggle, onMenuClose }) {
 
       <div className="mt-5 flex items-center justify-between">
         <TimeBadge timeLeft={project.timeLeft} urgent={project.urgent} />
-        <TeamAvatars count={project.teamSize} />
+        <TeamAvatars members={project.members} />
       </div>
     </article>
   )
@@ -436,7 +543,7 @@ function ProjectListRow({ project, menuOpen, onMenuToggle, onMenuClose }) {
         <TimeBadge timeLeft={project.timeLeft} urgent={project.urgent} compact />
       </td>
       <td className="px-3 py-4">
-        <TeamAvatars count={project.teamSize} />
+        <TeamAvatars members={project.members} />
       </td>
       <td className="px-3 py-4">
         <CardMenu project={project} open={menuOpen} onToggle={onMenuToggle} onClose={onMenuClose} align="right" />
@@ -461,10 +568,17 @@ function CardMenu({ project, open, onToggle, onClose, align = 'right' }) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open, onClose])
 
+  const menuItems = [
+    { label: 'Edit', icon: Pencil, destructive: false },
+    { label: 'Add Member', icon: UserPlus, destructive: false },
+    { label: 'Add Due Date', icon: Clock, destructive: false },
+    { label: 'Delete Project', icon: Trash2, destructive: true, separated: true },
+  ]
+
   return (
     <div className="relative" ref={menuRef}>
       <button
-        className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-700"
+        className={`rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-700 ${open ? 'bg-ink-50 text-ink-700' : ''}`}
         onClick={onToggle}
         aria-expanded={open}
         aria-label={`Actions for ${project.title}`}
@@ -473,94 +587,230 @@ function CardMenu({ project, open, onToggle, onClose, align = 'right' }) {
       </button>
       {open ? (
         <div
-          className={`absolute top-full z-20 mt-1 min-w-[160px] rounded-xl border border-ink-100 bg-white py-1 shadow-lg ${
+          className={`absolute top-full z-30 mt-2 min-w-[196px] overflow-hidden rounded-2xl border border-ink-100 bg-white py-2 shadow-lg ${
             align === 'right' ? 'right-0' : 'left-0'
           }`}
         >
-          {['View Details', 'Edit Project', 'Archive', 'Delete'].map((action) => (
-            <button
-              key={action}
-              className="block w-full px-4 py-2 text-left text-sm text-ink-600 hover:bg-ink-50 hover:text-ink-900"
-              onClick={onClose}
-            >
-              {action}
-            </button>
-          ))}
+          {menuItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <button
+                key={item.label}
+                type="button"
+                className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                  item.separated ? 'mt-1 border-t border-ink-100' : ''
+                } ${item.destructive ? 'text-[#E98B70] hover:text-[#D97757]' : 'text-ink-600 hover:text-ink-900'}`}
+                onClick={onClose}
+              >
+                <Icon size={16} className={item.destructive ? 'text-[#E98B70]' : 'text-ink-400'} />
+                {item.label}
+              </button>
+            )
+          })}
         </div>
       ) : null}
     </div>
   )
 }
 
-function FilterPanel({ filters, onChange, onClose }) {
+function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onReset }) {
+  const [memberQuery, setMemberQuery] = useState('')
+  const [dueDateOpen, setDueDateOpen] = useState(false)
+  const [statusOpen, setStatusOpen] = useState(false)
+
+  const updateFilters = (patch) => {
+    onChange((current) => ({ ...current, ...patch }))
+  }
+
+  const removeMember = (member) => {
+    updateFilters({ members: filters.members.filter((name) => name !== member) })
+  }
+
+  const addMember = (member) => {
+    if (!filters.members.includes(member)) {
+      updateFilters({ members: [...filters.members, member] })
+    }
+    setMemberQuery('')
+  }
+
+  const filteredMemberOptions = memberOptions.filter(
+    (member) => member.toLowerCase().includes(memberQuery.toLowerCase()) && !filters.members.includes(member),
+  )
+
+  const selectedDueDate = dueDateOptions.find((option) => option.id === filters.dueDate) || dueDateOptions[0]
+  const selectedStatus = projectStatusOptions.find((option) => option.id === filters.status) || projectStatusOptions[0]
+
   return (
-    <section className="mb-5 rounded-xl2 border border-ink-100 bg-white p-5 shadow-card">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-ink-900">Filters</h2>
-        <button className="text-sm text-ink-400 hover:text-ink-700" onClick={onClose}>
-          Close
-        </button>
-      </div>
-      <div className="grid gap-4 md:grid-cols-3">
-        <label className="text-sm text-ink-500">
-          Min progress ({filters.minProgress}%)
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={filters.minProgress}
-            onChange={(event) =>
-              onChange((current) => ({
-                ...current,
-                minProgress: Math.min(Number(event.target.value), current.maxProgress),
-              }))
-            }
-            className="mt-2 w-full accent-brand-dark"
-          />
-        </label>
-        <label className="text-sm text-ink-500">
-          Max progress ({filters.maxProgress}%)
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={filters.maxProgress}
-            onChange={(event) =>
-              onChange((current) => ({
-                ...current,
-                maxProgress: Math.max(Number(event.target.value), current.minProgress),
-              }))
-            }
-            className="mt-2 w-full accent-brand-dark"
-          />
-        </label>
-        <label className="flex items-center gap-2 self-end text-sm text-ink-600">
-          <input
-            type="checkbox"
-            checked={filters.urgentOnly}
-            onChange={(event) => onChange((current) => ({ ...current, urgentOnly: event.target.checked }))}
-            className="h-4 w-4 rounded border-ink-200 text-brand-dark focus:ring-brand-dark/30"
-          />
-          Urgent deadlines only
-        </label>
-      </div>
-      <div className="mt-4 flex justify-end gap-2">
+    <aside className="fixed right-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-full max-w-[403px] flex-col border-l border-ink-100 bg-white shadow-2xl">
+      <div className="flex items-center justify-between border-b border-ink-100 px-6 py-5">
+        <h2 className="text-2xl font-semibold text-ink-900">Filter</h2>
         <button
-          className="rounded-xl border border-ink-100 px-4 py-2 text-sm text-ink-500 hover:bg-ink-50"
-          onClick={() =>
-            onChange({
-              minProgress: 0,
-              maxProgress: 100,
-              urgentOnly: false,
-            })
-          }
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-50 text-ink-500 hover:bg-ink-100 hover:text-ink-700"
+          onClick={onClose}
+          aria-label="Close filter panel"
         >
-          Reset
-        </button>
-        <button className="rounded-xl bg-brand-dark px-4 py-2 text-sm font-medium text-white hover:bg-brand-green" onClick={onClose}>
-          Apply
+          <X size={18} />
         </button>
       </div>
+
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="relative">
+          <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" />
+          <input
+            value={filters.search}
+            onChange={(event) => updateFilters({ search: event.target.value })}
+            placeholder="Search Projects..."
+            className="h-12 w-full rounded-xl border border-ink-100 bg-white pl-11 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+          />
+        </div>
+
+        <FilterSection label="Members">
+          <div className="rounded-xl border border-ink-100 p-3">
+            <div className="flex flex-wrap gap-2">
+              {filters.members.map((member) => (
+                <span
+                  key={member}
+                  className="inline-flex items-center gap-2 rounded-lg bg-ink-50 px-2 py-1.5 text-sm text-ink-700"
+                >
+                  <MemberAvatar name={member} size="xs" />
+                  {member}
+                  <button
+                    type="button"
+                    className="text-ink-400 hover:text-ink-700"
+                    onClick={() => removeMember(member)}
+                    aria-label={`Remove ${member}`}
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="relative mt-3">
+              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+              <input
+                value={memberQuery}
+                onChange={(event) => setMemberQuery(event.target.value)}
+                placeholder="Search members..."
+                className="h-10 w-full rounded-lg border border-ink-100 bg-white pl-10 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+              />
+            </div>
+            {memberQuery && filteredMemberOptions.length > 0 ? (
+              <ul className="mt-2 max-h-32 overflow-y-auto rounded-lg border border-ink-100">
+                {filteredMemberOptions.map((member) => (
+                  <li key={member}>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink-600 hover:bg-ink-50"
+                      onClick={() => addMember(member)}
+                    >
+                      <MemberAvatar name={member} size="xs" />
+                      {member}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        </FilterSection>
+
+        <FilterSection label="Due Date">
+          <div className="relative">
+            <button
+              type="button"
+              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+              onClick={() => {
+                setDueDateOpen((open) => !open)
+                setStatusOpen(false)
+              }}
+            >
+              <span className="flex items-center gap-3">
+                <CalendarClock size={16} className="text-ink-400" />
+                {selectedDueDate.label}
+              </span>
+              <ChevronDown size={16} className="text-ink-400" />
+            </button>
+            {dueDateOpen ? (
+              <div className="absolute left-0 right-0 top-14 z-10 overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-card">
+                {dueDateOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                      option.id === filters.dueDate ? 'font-medium text-brand-dark' : 'text-ink-600'
+                    }`}
+                    onClick={() => {
+                      updateFilters({ dueDate: option.id })
+                      setDueDateOpen(false)
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </FilterSection>
+
+        <FilterSection label="Status">
+          <div className="relative">
+            <button
+              type="button"
+              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+              onClick={() => {
+                setStatusOpen((open) => !open)
+                setDueDateOpen(false)
+              }}
+            >
+              <span className="flex items-center gap-3">
+                <Check size={16} className="text-ink-400" />
+                {selectedStatus.label}
+              </span>
+              <ChevronDown size={16} className="text-ink-400" />
+            </button>
+            {statusOpen ? (
+              <div className="absolute left-0 right-0 top-14 z-10 overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-card">
+                {projectStatusOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                      option.id === filters.status ? 'font-medium text-brand-dark' : 'text-ink-600'
+                    }`}
+                    onClick={() => {
+                      updateFilters({ status: option.id })
+                      setStatusOpen(false)
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </FilterSection>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 border-t border-ink-100 px-6 py-5">
+        <button
+          type="button"
+          className="h-12 flex-1 rounded-xl bg-brand-dark text-sm font-semibold text-white hover:bg-brand-green"
+          onClick={onApply}
+        >
+          Apply Filters
+        </button>
+        <button type="button" className="text-sm font-medium text-brand-dark underline hover:text-brand-green" onClick={onReset}>
+          Reset all Filters
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+function FilterSection({ label, children }) {
+  return (
+    <section className="mt-8">
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-400">{label}</h3>
+      {children}
     </section>
   )
 }
@@ -592,22 +842,25 @@ function StatusBadge({ status }) {
   )
 }
 
-function TeamAvatars({ count }) {
-  const members = TEAM_MEMBERS.slice(0, count)
-
+function TeamAvatars({ members }) {
   return (
     <div className="flex -space-x-2">
       {members.map((name, index) => (
-        <TeamAvatar key={`${name}-${index}`} name={name} />
+        <MemberAvatar key={`${name}-${index}`} name={name} />
       ))}
     </div>
   )
 }
 
-function TeamAvatar({ name }) {
+function MemberAvatar({ name, size = 'md' }) {
+  const sizes = {
+    xs: 'h-6 w-6 text-[8px]',
+    md: 'h-7 w-7 text-[9px]',
+  }
+
   return (
     <div
-      className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gradient-to-br from-[#E98B70] to-[#C65E43] text-[9px] font-semibold text-white"
+      className={`flex items-center justify-center overflow-hidden rounded-full border-2 border-white bg-gradient-to-br from-[#E98B70] to-[#C65E43] font-semibold text-white ${sizes[size] || sizes.md}`}
       title={name}
     >
       {name

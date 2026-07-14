@@ -12,6 +12,7 @@ import {
   Search,
   SlidersHorizontal,
 } from 'lucide-react'
+import CustomerFormModal from '../components/CustomerFormModal'
 
 const seedCustomers = [
   { id: 1, name: 'Regina Cooper', email: 'cooper@example.com', location: 'Sochi, Russia', phone: '+1 (070) 123-4567', date: '12.09.20', status: 'Active' },
@@ -102,6 +103,7 @@ export default function EcommerceCustomers() {
     startDate: '',
     endDate: '',
   })
+  const [customerModalOpen, setCustomerModalOpen] = useState(false)
 
   const tabCounts = useMemo(() => {
     return {
@@ -184,7 +186,12 @@ export default function EcommerceCustomers() {
             Export
             <ChevronDown size={14} />
           </button>
-          <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark text-white shadow-card hover:bg-brand-green" aria-label="Add customer">
+          <button
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark text-white shadow-card hover:bg-brand-green"
+            aria-label="Add customer"
+            onClick={() => setCustomerModalOpen(true)}
+          >
             <Plus size={18} />
           </button>
         </div>
@@ -210,6 +217,10 @@ export default function EcommerceCustomers() {
         onSort={handleSort}
         onApplyFilters={setAppliedFilters}
       />
+
+      {customerModalOpen ? (
+        <CustomerFormModal onClose={() => setCustomerModalOpen(false)} onSubmit={() => setCustomerModalOpen(false)} />
+      ) : null}
     </div>
   )
 }

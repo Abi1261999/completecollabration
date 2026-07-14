@@ -268,7 +268,7 @@ export default function Projects() {
 
       <div className="mb-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
-          <h1 className="text-2xl font-semibold text-ink-900">Projects</h1>
+          <h1 className="text-page-title text-ink-900 md:text-[1.875rem]">Projects</h1>
           <ProjectTabs
             activeTab={activeTab}
             tabCounts={tabCounts}
@@ -292,7 +292,7 @@ export default function Projects() {
           </button>
           <button
             type="button"
-            className="flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-sm font-medium text-white shadow-card hover:bg-brand-green"
+            className="flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-body font-medium text-white shadow-card hover:bg-brand-green"
             onClick={openAddProjectModal}
           >
             <Plus size={16} />
@@ -325,19 +325,19 @@ export default function Projects() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400"
+            className="min-w-0 flex-1 bg-transparent text-body text-ink-700 outline-none placeholder:text-ink-400"
             placeholder="Search projects..."
           />
         </div>
-        <p className="text-sm text-ink-400">
+        <p className="text-caption text-ink-500">
           {filteredProjects.length} project{filteredProjects.length === 1 ? '' : 's'}
         </p>
       </div>
 
       {filteredProjects.length === 0 ? (
         <div className="rounded-xl2 border border-ink-100 bg-white p-12 text-center shadow-card">
-          <p className="text-sm font-medium text-ink-700">No projects match your filters</p>
-          <p className="mt-1 text-sm text-ink-400">Try another tab or clear your search.</p>
+          <p className="text-body font-medium text-ink-700">No projects match your filters</p>
+          <p className="mt-1.5 text-caption text-ink-500">Try another tab or clear your search.</p>
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -358,9 +358,9 @@ export default function Projects() {
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl2 border border-ink-100 bg-white shadow-card">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="w-full min-w-[760px] text-body">
             <thead>
-              <tr className="border-b border-ink-100 text-left text-xs uppercase tracking-wide text-ink-400">
+              <tr className="border-b border-ink-100 text-left text-section-title uppercase text-ink-500">
                 <th className="px-5 py-4 font-semibold">Project</th>
                 <th className="px-3 py-4 font-semibold">Status</th>
                 <th className="px-3 py-4 font-semibold">Progress</th>
@@ -394,17 +394,17 @@ export default function Projects() {
 
 function ProjectTabs({ activeTab, tabCounts, onTabChange }) {
   return (
-    <div className="mt-7 flex h-auto w-full flex-wrap items-center gap-7 border-b border-ink-100 text-sm md:h-10">
+    <div className="mt-6 flex h-auto w-full flex-wrap items-center gap-7 border-b border-ink-100 text-body md:h-10">
       {statusTabs.map((tab) => (
         <button
           key={tab.value}
           className={`relative flex items-center gap-2 pb-3 font-medium ${
-            activeTab === tab.value ? 'text-ink-900' : 'text-ink-400 hover:text-ink-700'
+            activeTab === tab.value ? 'text-ink-900' : 'text-ink-500 hover:text-ink-700'
           }`}
           onClick={() => onTabChange(tab.value)}
         >
           {tab.label}
-          <span className="rounded-md bg-ink-100 px-1.5 py-0.5 text-[10px] text-ink-400">{tabCounts[tab.value]}</span>
+          <span className="rounded-md bg-ink-100 px-1.5 py-0.5 text-caption font-medium text-ink-500">{tabCounts[tab.value]}</span>
           {activeTab === tab.value ? <span className="absolute bottom-[-1px] left-0 h-0.5 w-full rounded-full bg-brand-dark" /> : null}
         </button>
       ))}
@@ -422,8 +422,8 @@ function ProjectCard({ project, menuOpen, onMenuToggle, onMenuClose, onEdit, onO
         <div className="flex min-w-0 items-center gap-3">
           <BrandLogo brand={project.brand} />
           <div className="min-w-0">
-            <h2 className="truncate text-sm font-semibold text-ink-900">{project.title}</h2>
-            <p className="truncate text-xs text-ink-400">{project.company}</p>
+            <h2 className="truncate text-card-title text-ink-900">{project.title}</h2>
+            <p className="truncate text-caption text-ink-500">{project.company}</p>
           </div>
         </div>
         <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()} role="presentation">
@@ -431,12 +431,12 @@ function ProjectCard({ project, menuOpen, onMenuToggle, onMenuClose, onEdit, onO
         </div>
       </div>
 
-      <p className="mt-4 line-clamp-2 min-h-[40px] text-sm leading-5 text-ink-500">{project.description}</p>
+      <p className="mt-4 line-clamp-2 min-h-[44px] text-body text-ink-600">{project.description}</p>
 
       <div className="mt-5">
-        <div className="mb-2 flex items-center justify-between text-xs">
-          <span className="text-ink-400">Progress</span>
-          <span className="font-medium text-ink-700">{project.progress}%</span>
+        <div className="mb-2 flex items-center justify-between text-caption">
+          <span className="text-ink-500">Progress</span>
+          <span className="font-semibold text-ink-700">{project.progress}%</span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-ink-100">
           <div
@@ -464,8 +464,8 @@ function ProjectListRow({ project, menuOpen, onMenuToggle, onMenuClose, onEdit, 
         <div className="flex items-center gap-3">
           <BrandLogo brand={project.brand} size="sm" />
           <div className="min-w-0">
-            <p className="truncate font-medium text-ink-900">{project.title}</p>
-            <p className="truncate text-xs text-ink-400">{project.company}</p>
+            <p className="truncate text-card-title text-ink-900">{project.title}</p>
+            <p className="truncate text-caption text-ink-500">{project.company}</p>
           </div>
         </div>
       </td>
@@ -477,7 +477,7 @@ function ProjectListRow({ project, menuOpen, onMenuToggle, onMenuClose, onEdit, 
           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-ink-100">
             <div className="h-full rounded-full bg-brand-green" style={{ width: `${project.progress}%` }} />
           </div>
-          <span className="w-10 text-xs font-medium text-ink-700">{project.progress}%</span>
+          <span className="w-10 text-caption font-semibold text-ink-700">{project.progress}%</span>
         </div>
       </td>
       <td className="px-3 py-4">
@@ -539,7 +539,7 @@ function CardMenu({ project, open, onToggle, onClose, onEdit, onOpenDetails, ali
               <button
                 key={item.label}
                 type="button"
-                className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-body hover:bg-ink-50 ${
                   item.separated ? 'mt-1 border-t border-ink-100' : ''
                 } ${item.destructive ? 'text-[#E98B70] hover:text-[#D97757]' : 'text-ink-600 hover:text-ink-900'}`}
                 onClick={() => {
@@ -598,7 +598,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
       <button className="absolute inset-0 bg-ink-900/40" aria-label="Close dialog" onClick={onClose} />
       <div className="relative z-10 max-h-[92vh] w-full max-w-[520px] overflow-y-auto rounded-xl2 bg-white shadow-2xl">
         <div className="flex items-center justify-between border-b border-ink-100 px-6 py-5">
-          <h2 className="text-xl font-semibold text-ink-900">{isEdit ? 'Edit Project' : 'Add Project'}</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-ink-900">{isEdit ? 'Edit Project' : 'Add Project'}</h2>
           <button
             className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-50 text-ink-500 hover:bg-ink-100 hover:text-ink-700"
             onClick={onClose}
@@ -636,7 +636,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
               <div className="relative">
                 <button
                   type="button"
-                  className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+                  className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-body text-ink-700 hover:bg-ink-50"
                   onClick={() => setStatusOpen((open) => !open)}
                 >
                   <span className="flex items-center gap-2">
@@ -651,7 +651,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                       <button
                         key={option.id}
                         type="button"
-                        className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                        className={`block w-full px-4 py-2.5 text-left text-body hover:bg-ink-50 ${
                           option.id === form.status ? 'font-medium text-brand-dark' : 'text-ink-600'
                         }`}
                         onClick={() => {
@@ -672,7 +672,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
             <input
               value={form.title}
               onChange={(event) => updateForm({ title: event.target.value })}
-              className="h-12 w-full rounded-xl border border-ink-100 px-4 text-sm text-ink-700 outline-none focus:border-brand-dark"
+              className="h-12 w-full rounded-xl border border-ink-100 px-4 text-body text-ink-700 outline-none focus:border-brand-dark"
             />
           </ProjectFormField>
 
@@ -680,7 +680,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
             <input
               value={form.company}
               onChange={(event) => updateForm({ company: event.target.value })}
-              className="h-12 w-full rounded-xl border border-ink-100 px-4 text-sm text-ink-700 outline-none focus:border-brand-dark"
+              className="h-12 w-full rounded-xl border border-ink-100 px-4 text-body text-ink-700 outline-none focus:border-brand-dark"
             />
           </ProjectFormField>
 
@@ -689,7 +689,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
               value={form.description}
               onChange={(event) => updateForm({ description: event.target.value })}
               rows={isEdit ? 5 : 3}
-              className="w-full resize-none rounded-xl border border-ink-100 px-4 py-3 text-sm leading-6 text-ink-700 outline-none focus:border-brand-dark"
+              className="w-full resize-none rounded-xl border border-ink-100 px-4 py-3 text-body leading-6 text-ink-700 outline-none focus:border-brand-dark"
             />
           </ProjectFormField>
 
@@ -699,7 +699,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                 <select
                   value={form.startTime}
                   onChange={(event) => updateForm({ startTime: event.target.value })}
-                  className="h-12 min-w-0 flex-1 rounded-xl border border-ink-100 bg-white px-3 text-sm text-ink-700 outline-none focus:border-brand-dark"
+                  className="h-12 min-w-0 flex-1 rounded-xl border border-ink-100 bg-white px-3 text-body text-ink-700 outline-none focus:border-brand-dark"
                 >
                   {timeOptions.map((time) => (
                     <option key={time} value={time}>
@@ -710,7 +710,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                 <div className="relative min-w-0 flex-[1.4]">
                   <button
                     type="button"
-                    className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-3 text-sm text-ink-700 hover:bg-ink-50"
+                    className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-3 text-body text-ink-700 hover:bg-ink-50"
                     onClick={() => {
                       setStartDateOpen((open) => !open)
                       setEndDateOpen(false)
@@ -725,7 +725,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                         <button
                           key={date}
                           type="button"
-                          className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                          className={`block w-full px-4 py-2.5 text-left text-body hover:bg-ink-50 ${
                             date === form.startDate ? 'font-medium text-brand-dark' : 'text-ink-600'
                           }`}
                           onClick={() => {
@@ -749,7 +749,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                 <select
                   value={form.endTime}
                   onChange={(event) => updateForm({ endTime: event.target.value })}
-                  className="h-12 min-w-0 flex-1 rounded-xl border border-ink-100 bg-white px-3 text-sm text-ink-700 outline-none focus:border-brand-dark"
+                  className="h-12 min-w-0 flex-1 rounded-xl border border-ink-100 bg-white px-3 text-body text-ink-700 outline-none focus:border-brand-dark"
                 >
                   {timeOptions.map((time) => (
                     <option key={time} value={time}>
@@ -760,7 +760,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                 <div className="relative min-w-0 flex-[1.4]">
                   <button
                     type="button"
-                    className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-3 text-sm text-ink-700 hover:bg-ink-50"
+                    className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-3 text-body text-ink-700 hover:bg-ink-50"
                     onClick={() => {
                       setEndDateOpen((open) => !open)
                       setStartDateOpen(false)
@@ -775,7 +775,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                         <button
                           key={date}
                           type="button"
-                          className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                          className={`block w-full px-4 py-2.5 text-left text-body hover:bg-ink-50 ${
                             date === form.endDate ? 'font-medium text-brand-dark' : 'text-ink-600'
                           }`}
                           onClick={() => {
@@ -799,7 +799,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                 {form.members.map((member) => (
                   <span
                     key={member}
-                    className="inline-flex items-center gap-2 rounded-lg bg-ink-50 px-2 py-1.5 text-sm text-ink-700"
+                    className="inline-flex items-center gap-2 rounded-lg bg-ink-50 px-2 py-1.5 text-body text-ink-700"
                   >
                     <MemberAvatar name={member} size="xs" />
                     {member}
@@ -820,7 +820,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                   value={memberQuery}
                   onChange={(event) => setMemberQuery(event.target.value)}
                   placeholder="Search members..."
-                  className="h-10 w-full rounded-lg border border-ink-100 bg-white pl-10 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+                  className="h-10 w-full rounded-lg border border-ink-100 bg-white pl-10 pr-4 text-body text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
                 />
               </div>
               {memberQuery && filteredMemberOptions.length > 0 ? (
@@ -829,7 +829,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
                     <li key={member}>
                       <button
                         type="button"
-                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink-600 hover:bg-ink-50"
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-body text-ink-600 hover:bg-ink-50"
                         onClick={() => addMember(member)}
                       >
                         <MemberAvatar name={member} size="xs" />
@@ -848,7 +848,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
               <input
                 value={form.budget}
                 onChange={(event) => updateForm({ budget: event.target.value })}
-                className="h-12 w-full rounded-xl border border-ink-100 pl-8 pr-4 text-sm text-ink-700 outline-none focus:border-brand-dark"
+                className="h-12 w-full rounded-xl border border-ink-100 pl-8 pr-4 text-body text-ink-700 outline-none focus:border-brand-dark"
               />
             </div>
           </ProjectFormField>
@@ -857,7 +857,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
         <div className="flex justify-end border-t border-ink-100 px-6 py-5">
           <button
             type="button"
-            className="h-12 rounded-xl bg-brand-dark px-8 text-sm font-semibold text-white hover:bg-brand-green"
+            className="h-12 rounded-xl bg-brand-dark px-8 text-body font-semibold text-white hover:bg-brand-green"
             onClick={onSave}
           >
             {isEdit ? 'Save' : 'Create'}
@@ -871,7 +871,7 @@ function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave
 function ProjectFormField({ label, children }) {
   return (
     <label className="mb-5 block">
-      <span className="mb-2 block text-sm text-ink-400">{label}</span>
+      <span className="mb-2 block text-body font-medium text-ink-500">{label}</span>
       {children}
     </label>
   )
@@ -907,7 +907,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
   return (
     <aside className="fixed right-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-full max-w-[403px] flex-col border-l border-ink-100 bg-white shadow-2xl">
       <div className="flex items-center justify-between border-b border-ink-100 px-6 py-5">
-        <h2 className="text-2xl font-semibold text-ink-900">Filter</h2>
+        <h2 className="text-page-title text-ink-900">Filter</h2>
         <button
           className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-50 text-ink-500 hover:bg-ink-100 hover:text-ink-700"
           onClick={onClose}
@@ -924,7 +924,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
             value={filters.search}
             onChange={(event) => updateFilters({ search: event.target.value })}
             placeholder="Search Projects..."
-            className="h-12 w-full rounded-xl border border-ink-100 bg-white pl-11 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+            className="h-12 w-full rounded-xl border border-ink-100 bg-white pl-11 pr-4 text-body text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
           />
         </div>
 
@@ -934,7 +934,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
               {filters.members.map((member) => (
                 <span
                   key={member}
-                  className="inline-flex items-center gap-2 rounded-lg bg-ink-50 px-2 py-1.5 text-sm text-ink-700"
+                  className="inline-flex items-center gap-2 rounded-lg bg-ink-50 px-2 py-1.5 text-body text-ink-700"
                 >
                   <MemberAvatar name={member} size="xs" />
                   {member}
@@ -955,7 +955,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
                 value={memberQuery}
                 onChange={(event) => setMemberQuery(event.target.value)}
                 placeholder="Search members..."
-                className="h-10 w-full rounded-lg border border-ink-100 bg-white pl-10 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+                className="h-10 w-full rounded-lg border border-ink-100 bg-white pl-10 pr-4 text-body text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
               />
             </div>
             {memberQuery && filteredMemberOptions.length > 0 ? (
@@ -964,7 +964,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
                   <li key={member}>
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink-600 hover:bg-ink-50"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-body text-ink-600 hover:bg-ink-50"
                       onClick={() => addMember(member)}
                     >
                       <MemberAvatar name={member} size="xs" />
@@ -981,7 +981,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
           <div className="relative">
             <button
               type="button"
-              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-body text-ink-700 hover:bg-ink-50"
               onClick={() => {
                 setDueDateOpen((open) => !open)
                 setStatusOpen(false)
@@ -999,7 +999,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
                   <button
                     key={option.id}
                     type="button"
-                    className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                    className={`block w-full px-4 py-2.5 text-left text-body hover:bg-ink-50 ${
                       option.id === filters.dueDate ? 'font-medium text-brand-dark' : 'text-ink-600'
                     }`}
                     onClick={() => {
@@ -1019,7 +1019,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
           <div className="relative">
             <button
               type="button"
-              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-body text-ink-700 hover:bg-ink-50"
               onClick={() => {
                 setStatusOpen((open) => !open)
                 setDueDateOpen(false)
@@ -1037,7 +1037,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
                   <button
                     key={option.id}
                     type="button"
-                    className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                    className={`block w-full px-4 py-2.5 text-left text-body hover:bg-ink-50 ${
                       option.id === filters.status ? 'font-medium text-brand-dark' : 'text-ink-600'
                     }`}
                     onClick={() => {
@@ -1057,12 +1057,12 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
       <div className="flex items-center justify-between gap-4 border-t border-ink-100 px-6 py-5">
         <button
           type="button"
-          className="h-12 flex-1 rounded-xl bg-brand-dark text-sm font-semibold text-white hover:bg-brand-green"
+          className="h-12 flex-1 rounded-xl bg-brand-dark text-body font-semibold text-white hover:bg-brand-green"
           onClick={onApply}
         >
           Apply Filters
         </button>
-        <button type="button" className="text-sm font-medium text-brand-dark underline hover:text-brand-green" onClick={onReset}>
+        <button type="button" className="text-body font-medium text-brand-dark underline hover:text-brand-green" onClick={onReset}>
           Reset all Filters
         </button>
       </div>
@@ -1073,7 +1073,7 @@ function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onRes
 function FilterSection({ label, children }) {
   return (
     <section className="mt-8">
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-400">{label}</h3>
+      <h3 className="mb-3 text-section-title uppercase text-ink-500">{label}</h3>
       {children}
     </section>
   )
@@ -1082,7 +1082,7 @@ function FilterSection({ label, children }) {
 function TimeBadge({ timeLeft, urgent, compact = false }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full text-xs font-medium ${
+      className={`inline-flex items-center gap-1.5 rounded-full text-caption font-medium ${
         compact ? 'bg-transparent px-0 py-0' : 'px-2.5 py-1'
       } ${urgent ? 'bg-orange-50 text-orange-500' : 'bg-ink-100 text-ink-500'}`}
     >
@@ -1100,7 +1100,7 @@ function StatusBadge({ status }) {
   }
 
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${styles[status] || 'bg-ink-100 text-ink-500'}`}>
+    <span className={`inline-flex rounded-full px-2.5 py-1 text-caption font-medium ${styles[status] || 'bg-ink-100 text-ink-500'}`}>
       {status}
     </span>
   )
@@ -1118,8 +1118,8 @@ function TeamAvatars({ members }) {
 
 function MemberAvatar({ name, size = 'md' }) {
   const sizes = {
-    xs: 'h-6 w-6 text-[8px]',
-    md: 'h-7 w-7 text-[9px]',
+    xs: 'h-6 w-6 text-caption',
+    md: 'h-7 w-7 text-caption',
   }
 
   return (

@@ -7,8 +7,13 @@ import {
   ChevronDown,
   ChevronRight,
   FileText,
+  Eye,
+  FileArchive,
+  GripVertical,
+  Image as ImageIcon,
   Layers,
   LayoutGrid,
+  Link2,
   MessageSquare,
   MoreHorizontal,
   Move,
@@ -16,6 +21,7 @@ import {
   Plus,
   Search,
   SlidersHorizontal,
+  Smile,
   Trash2,
   UserPlus,
   X,
@@ -398,6 +404,91 @@ function filterColumnTasks(columnTasks, columnId, filters) {
   return columnTasks.filter((task) => taskMatchesFilters(task, columnId, filters))
 }
 
+const taskDetailExtras = {
+  'progress-2': {
+    createdBy: 'Shane Black',
+    dueDate: 'Jan 17, 2020, 10:50 AM',
+    longDescription:
+      'We need to develop several options (Inbox template, Chat template, tasks template, Projects template) of cool user interface design templates - to carefully work out the smallest details.',
+    viewers: 2,
+    files: [
+      {
+        id: 'file-1',
+        name: 'Wireframe UI Kit.zip',
+        meta: 'Uploaded on 15.01.2020 at 11:45',
+        size: '5.8 MB',
+        type: 'zip',
+      },
+      {
+        id: 'file-2',
+        name: 'Picture 01.png',
+        meta: 'Uploaded on 15.01.2020 at 11:50',
+        size: '1.2 MB',
+        type: 'image',
+        thumb: 'sunset',
+      },
+      {
+        id: 'file-3',
+        name: 'Picture 02.png',
+        meta: 'Uploaded on 15.01.2020 at 11:50',
+        size: '1.4 MB',
+        type: 'image',
+        thumb: 'coast',
+      },
+    ],
+    comments: [
+      { id: 'c1', author: 'Jane Wilson', time: '5 min ago', text: 'Hi Cody, any progress on the project? 🧐' },
+      {
+        id: 'c2',
+        author: 'Jacob Hawkins',
+        time: '1 day ago',
+        text: 'Hi Jane!\n\nYes. I just finished developing the "Chat" template.',
+        images: ['sunset', 'coast', 'city'],
+        moreImages: 3,
+      },
+      {
+        id: 'c3',
+        author: 'Regina Cooper',
+        time: '5 min ago',
+        text: 'Hi Jacob. Will you be able to finish the last item of the task by tomorrow?',
+      },
+    ],
+  },
+}
+
+function getTaskDetail(task) {
+  const extra = taskDetailExtras[task.id]
+  const labels = getTaskLabels(task)
+
+  return {
+    createdBy: extra?.createdBy || task.assignees[0] || 'Shane Black',
+    dueDate: extra?.dueDate || `Jan 17, 2020, 10:50 AM`,
+    longDescription: extra?.longDescription || task.description || 'No description provided for this task yet.',
+    viewers: extra?.viewers || 2,
+    labels,
+    files:
+      extra?.files ||
+      (task.attachments > 0
+        ? Array.from({ length: Math.min(task.attachments, 3) }, (_, index) => ({
+            id: `generated-${task.id}-${index}`,
+            name: index === 0 ? 'Attachment.zip' : `Picture 0${index}.png`,
+            meta: 'Uploaded on 15.01.2020 at 11:45',
+            size: '1.2 MB',
+            type: index === 0 ? 'zip' : 'image',
+            thumb: index === 1 ? 'sunset' : index === 2 ? 'coast' : undefined,
+          }))
+        : []),
+    comments: extra?.comments || [
+      {
+        id: 'default-1',
+        author: 'Jane Wilson',
+        time: '5 min ago',
+        text: `Any updates on "${task.title}"?`,
+      },
+    ],
+  }
+}
+
 export default function Task() {
   const [activeProjectId, setActiveProjectId] = useState('design-plans')
   const [projectOpen, setProjectOpen] = useState(false)
@@ -413,6 +504,8 @@ export default function Task() {
   const [dropColumn, setDropColumn] = useState(null)
   const [newTaskColumn, setNewTaskColumn] = useState(null)
   const [newTaskTitle, setNewTaskTitle] = useState('')
+  const [selectedTask, setSelectedTask] = useState(null)
+  const [suppressCardClick, setSuppressCardClick] = useState(false)
 
   const activeProject = projectList.find((project) => project.id === activeProjectId)?.name || 'Design Plans'
 
@@ -578,6 +671,39 @@ export default function Task() {
     setFilterOpen(false)
   }
 
+  const findTaskById = (taskId) => {
+    for (const column of columns) {
+      const task = tasks[column.id].find((item) => item.id === taskId)
+      if (task) {
+        return { task, columnId: column.id }
+      }
+    }
+
+    return null
+  }
+
+  const openTaskDetail = (task, columnId) => {
+    setSelectedTask({ task, columnId })
+    setFilterOpen(false)
+    setProjectOpen(false)
+    setAddOpen(false)
+    setOpenColumnMenu(null)
+  }
+
+  const closeTaskDetail = () => setSelectedTask(null)
+
+  const completeSelectedTask = () => {
+    if (!selectedTask || selectedTask.columnId === 'completed') {
+      closeTaskDetail()
+      return
+    }
+
+    moveTask(selectedTask.task.id, selectedTask.columnId, 'completed')
+    closeTaskDetail()
+  }
+
+  const selectedTaskLive = selectedTask ? findTaskById(selectedTask.task.id) : null
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden p-4 md:p-6">
       {(projectOpen || addOpen || openColumnMenu) && (
@@ -602,6 +728,20 @@ export default function Task() {
             onClose={() => setFilterOpen(false)}
             onApply={applyFilters}
             onReset={resetFilters}
+          />
+        </>
+      ) : null}
+
+      {selectedTaskLive ? (
+        <>
+          <button className="fixed inset-0 z-30 bg-ink-900/40" aria-label="Close task details" onClick={closeTaskDetail} />
+          <TaskDetailPanel
+            task={selectedTaskLive.task}
+            columnId={selectedTaskLive.columnId}
+            detail={getTaskDetail(selectedTaskLive.task)}
+            onClose={closeTaskDetail}
+            onComplete={completeSelectedTask}
+            onToggleSubtask={(subtaskId) => toggleSubtask(selectedTaskLive.columnId, selectedTaskLive.task.id, subtaskId)}
           />
         </>
       ) : null}
@@ -669,15 +809,24 @@ export default function Task() {
             }}
             onCompleteTasks={() => completeColumnTasks(column.id)}
             onDeleteTasks={() => deleteColumnTasks(column.id)}
-            onDragStart={setDraggingId}
+            onDragStart={(taskId) => {
+              setSuppressCardClick(true)
+              setDraggingId(taskId)
+            }}
             onDragEnd={() => {
               setDraggingId(null)
               setDropColumn(null)
+              window.setTimeout(() => setSuppressCardClick(false), 0)
             }}
             onDragEnter={() => setDropColumn(column.id)}
             onDrop={() => handleDrop(column.id)}
             onToggleSubtask={(taskId, subtaskId) => toggleSubtask(column.id, taskId, subtaskId)}
             onAddCard={() => setNewTaskColumn(column.id)}
+            onOpenTask={(task) => {
+              if (!suppressCardClick) {
+                openTaskDetail(task, column.id)
+              }
+            }}
           />
         ))}
       </div>
@@ -767,6 +916,7 @@ function KanbanColumn({
   onDrop,
   onToggleSubtask,
   onAddCard,
+  onOpenTask,
 }) {
   return (
     <section
@@ -808,6 +958,7 @@ function KanbanColumn({
             onDragStart={() => onDragStart(task.id)}
             onDragEnd={onDragEnd}
             onToggleSubtask={(subtaskId) => onToggleSubtask(task.id, subtaskId)}
+            onOpen={() => onOpenTask(task)}
           />
         ))}
       </div>
@@ -876,13 +1027,22 @@ function ColumnMenu({ accent, onColorSelect, onCompleteTasks, onDeleteTasks }) {
   )
 }
 
-function TaskCard({ task, onDragStart, onDragEnd, onToggleSubtask }) {
+function TaskCard({ task, onDragStart, onDragEnd, onToggleSubtask, onOpen }) {
   return (
     <article
       draggable
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      className="cursor-grab rounded-xl border border-ink-100 bg-white p-4 shadow-card active:cursor-grabbing"
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onOpen()
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      className="cursor-pointer rounded-xl border border-ink-100 bg-white p-4 shadow-card active:cursor-grabbing"
     >
       {task.statusBar ? (
         <div className="mb-3 flex gap-1">
@@ -933,7 +1093,10 @@ function TaskCard({ task, onDragStart, onDragEnd, onToggleSubtask }) {
               <button
                 type="button"
                 className="flex w-full items-center gap-2 text-left text-sm text-ink-600"
-                onClick={() => onToggleSubtask(subtask.id)}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  onToggleSubtask(subtask.id)
+                }}
               >
                 <span
                   className={`flex h-4 w-4 items-center justify-center rounded-full border ${
@@ -972,6 +1135,318 @@ function TaskCard({ task, onDragStart, onDragEnd, onToggleSubtask }) {
         </div>
       </div>
     </article>
+  )
+}
+
+function TaskDetailPanel({ task, columnId, detail, onClose, onComplete, onToggleSubtask }) {
+  const [activeTab, setActiveTab] = useState('comments')
+  const [commentDraft, setCommentDraft] = useState('')
+  const [comments, setComments] = useState(detail.comments)
+  const [hoveredChecklistId, setHoveredChecklistId] = useState(null)
+
+  const checklist = task.subtasks || []
+  const progress =
+    checklist.length > 0
+      ? Math.round((checklist.filter((item) => item.done).length / checklist.length) * 100)
+      : task.progress || 0
+
+  const handleAddComment = () => {
+    const text = commentDraft.trim()
+    if (!text) {
+      return
+    }
+
+    setComments((current) => [
+      ...current,
+      {
+        id: `comment-${Date.now()}`,
+        author: 'ArtTemplate',
+        time: 'Just now',
+        text,
+      },
+    ])
+    setCommentDraft('')
+  }
+
+  return (
+    <aside className="fixed right-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-full max-w-[403px] flex-col border-l border-ink-100 bg-white shadow-2xl">
+      <div className="flex items-center justify-between gap-2 border-b border-ink-100 px-5 py-4">
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2 text-sm font-medium text-white hover:bg-brand-green"
+          onClick={onComplete}
+        >
+          <Check size={16} />
+          Complete
+        </button>
+
+        <div className="flex items-center gap-2">
+          <button type="button" className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm text-ink-500 hover:bg-ink-50">
+            <Eye size={16} />
+            {detail.viewers}
+            <ChevronDown size={14} />
+          </button>
+          <button type="button" className="rounded-lg p-2 text-ink-400 hover:bg-ink-50 hover:text-ink-700" aria-label="Copy link">
+            <Link2 size={16} />
+          </button>
+          <button type="button" className="rounded-lg p-2 text-ink-400 hover:bg-ink-50 hover:text-ink-700" aria-label="More options">
+            <MoreHorizontal size={16} />
+          </button>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-50 text-ink-500 hover:bg-ink-100"
+            onClick={onClose}
+            aria-label="Close task details"
+          >
+            <X size={18} />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <h2 className="text-2xl font-semibold text-ink-900">{task.title}</h2>
+
+        <DetailSection label="Assigned To">
+          <div className="flex items-center gap-2">
+            <div className="flex -space-x-2">
+              {task.assignees.map((assignee) => (
+                <Avatar key={assignee} name={assignee} />
+              ))}
+            </div>
+            <button type="button" className="flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-ink-200 text-ink-400 hover:border-brand-dark hover:text-brand-dark">
+              <Plus size={14} />
+            </button>
+          </div>
+        </DetailSection>
+
+        <DetailSection label="Created By">
+          <div className="flex items-center gap-2">
+            <Avatar name={detail.createdBy} />
+            <span className="text-sm font-medium text-ink-700">{detail.createdBy}</span>
+          </div>
+        </DetailSection>
+
+        <DetailSection label="Labels">
+          <div className="flex flex-wrap items-center gap-2">
+            {detail.labels.map((labelId) => {
+              const label = labelOptions.find((option) => option.id === labelId)
+              if (!label) {
+                return null
+              }
+
+              return (
+                <span key={label.id} className={`rounded-lg px-3 py-1.5 text-xs font-medium ${label.className}`}>
+                  {label.label}
+                </span>
+              )
+            })}
+            <button type="button" className="flex h-8 w-8 items-center justify-center rounded-full border border-dashed border-ink-200 text-ink-400 hover:border-brand-dark hover:text-brand-dark">
+              <Plus size={14} />
+            </button>
+          </div>
+        </DetailSection>
+
+        <DetailSection label="Due Date">
+          <button type="button" className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50">
+            <span className="flex items-center gap-3">
+              <CalendarDays size={16} className="text-ink-400" />
+              {detail.dueDate}
+            </span>
+            <ChevronDown size={16} className="text-ink-400" />
+          </button>
+        </DetailSection>
+
+        <DetailSection label="Description">
+          <p className="text-sm leading-7 text-ink-600">{detail.longDescription}</p>
+        </DetailSection>
+
+        {checklist.length > 0 ? (
+          <DetailSection label={`Checklist (${progress}%)`}>
+            <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-ink-100">
+              <div className="h-full rounded-full bg-brand-dark transition-all" style={{ width: `${progress}%` }} />
+            </div>
+            <ul className="space-y-1">
+              {checklist.map((item) => (
+                <li
+                  key={item.id}
+                  className={`flex items-center gap-2 rounded-lg px-2 py-2 ${
+                    hoveredChecklistId === item.id ? 'bg-ink-50' : ''
+                  }`}
+                  onMouseEnter={() => setHoveredChecklistId(item.id)}
+                  onMouseLeave={() => setHoveredChecklistId(null)}
+                >
+                  <button
+                    type="button"
+                    className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm text-ink-600"
+                    onClick={() => onToggleSubtask(item.id)}
+                  >
+                    <span
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                        item.done ? 'border-brand-dark bg-brand-dark text-white' : 'border-ink-200 bg-white'
+                      }`}
+                    >
+                      {item.done ? <Check size={10} /> : null}
+                    </span>
+                    <span className={item.done ? 'text-ink-400 line-through' : ''}>{item.label}</span>
+                  </button>
+                  {hoveredChecklistId === item.id ? (
+                    <div className="flex items-center gap-1 text-ink-400">
+                      <GripVertical size={14} />
+                      <button type="button" className="rounded p-1 hover:bg-white hover:text-red-500" aria-label="Delete checklist item">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+            <button type="button" className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-brand-dark hover:text-brand-green">
+              <Plus size={14} />
+              Add Checklist Item
+            </button>
+          </DetailSection>
+        ) : null}
+
+        {detail.files.length > 0 ? (
+          <DetailSection label="Attachments">
+            <ul className="space-y-3">
+              {detail.files.map((file) => (
+                <li key={file.id} className="flex items-center gap-3 rounded-xl border border-ink-100 p-3">
+                  {file.type === 'image' ? (
+                    <div className={`h-12 w-12 shrink-0 rounded-lg ${imageStyles[file.thumb]}`} />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-ink-50 text-ink-500">
+                      <FileArchive size={18} />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-ink-800">{file.name}</p>
+                    <p className="text-xs text-ink-400">{file.meta}</p>
+                    <p className="text-xs text-ink-400">{file.size}</p>
+                  </div>
+                  <div className="flex items-center gap-1 text-ink-400">
+                    <button type="button" className="rounded p-1.5 hover:bg-ink-50 hover:text-ink-700" aria-label={`Download ${file.name}`}>
+                      <Paperclip size={14} />
+                    </button>
+                    <button type="button" className="rounded p-1.5 hover:bg-ink-50 hover:text-red-500" aria-label={`Delete ${file.name}`}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <button type="button" className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-brand-dark hover:text-brand-green">
+              <Plus size={14} />
+              Add Attachment
+            </button>
+          </DetailSection>
+        ) : null}
+
+        <div className="mt-8 border-t border-ink-100 pt-6">
+          <div className="flex gap-6 border-b border-ink-100">
+            <button
+              type="button"
+              className={`pb-3 text-xs font-semibold uppercase tracking-wide ${
+                activeTab === 'comments' ? 'border-b-2 border-brand-dark text-brand-dark' : 'text-ink-400'
+              }`}
+              onClick={() => setActiveTab('comments')}
+            >
+              Comments
+            </button>
+            <button
+              type="button"
+              className={`pb-3 text-xs font-semibold uppercase tracking-wide ${
+                activeTab === 'activity' ? 'border-b-2 border-brand-dark text-brand-dark' : 'text-ink-400'
+              }`}
+              onClick={() => setActiveTab('activity')}
+            >
+              Activity
+            </button>
+          </div>
+
+          {activeTab === 'comments' ? (
+            <>
+              <div className="mt-4 rounded-xl border border-ink-100 p-4">
+                <textarea
+                  value={commentDraft}
+                  onChange={(event) => setCommentDraft(event.target.value)}
+                  placeholder="Add Comment..."
+                  className="min-h-[80px] w-full resize-none bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400"
+                />
+                <div className="mt-3 flex items-center justify-between">
+                  <button
+                    type="button"
+                    className="rounded-xl bg-brand-dark px-4 py-2 text-sm font-medium text-white hover:bg-brand-green"
+                    onClick={handleAddComment}
+                  >
+                    Comment
+                  </button>
+                  <div className="flex items-center gap-2 text-ink-400">
+                    <button type="button" className="rounded p-1.5 hover:bg-ink-50 hover:text-ink-700" aria-label="Attach file">
+                      <Paperclip size={16} />
+                    </button>
+                    <button type="button" className="rounded p-1.5 hover:bg-ink-50 hover:text-ink-700" aria-label="Add emoji">
+                      <Smile size={16} />
+                    </button>
+                    <button type="button" className="rounded p-1.5 hover:bg-ink-50 hover:text-ink-700" aria-label="Add image">
+                      <ImageIcon size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <ul className="mt-6 space-y-6">
+                {comments.map((comment) => (
+                  <li key={comment.id} className="flex gap-3">
+                    <Avatar name={comment.author} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-ink-900">{comment.author}</span>
+                        <span className="text-xs text-ink-400">{comment.time}</span>
+                      </div>
+                      <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink-600">{comment.text}</p>
+                      {comment.images ? (
+                        <div className="mt-3 flex items-center gap-2">
+                          {comment.images.slice(0, 3).map((image) => (
+                            <div key={image} className={`h-12 w-12 rounded-lg ${imageStyles[image]}`} />
+                          ))}
+                          {comment.moreImages ? (
+                            <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-green/15 text-sm font-semibold text-brand-dark">
+                              +{comment.moreImages}
+                            </span>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <ul className="mt-4 space-y-4">
+              <li className="text-sm text-ink-500">
+                <span className="font-medium text-ink-700">{detail.createdBy}</span> created this task
+              </li>
+              <li className="text-sm text-ink-500">
+                <span className="font-medium text-ink-700">Jane Wilson</span> moved this task to {columnId === 'completed' ? 'Completed' : columnId === 'inProgress' ? 'In Progress' : 'To Do'}
+              </li>
+              <li className="text-sm text-ink-500">
+                <span className="font-medium text-ink-700">Jacob Hawkins</span> updated the checklist
+              </li>
+            </ul>
+          )}
+        </div>
+      </div>
+    </aside>
+  )
+}
+
+function DetailSection({ label, children }) {
+  return (
+    <section className="mt-6">
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-400">{label}</h3>
+      {children}
+    </section>
   )
 }
 

@@ -12,6 +12,7 @@ import Mail from './pages/Mail'
 import Task from './pages/Task'
 import Projects from './pages/Projects'
 import ProjectDetailsPage from './pages/ProjectDetailsPage'
+import FileManager from './pages/FileManager'
 import { navItems } from './navConfig'
 
 function isProjectDetailsPath(pathname) {
@@ -27,6 +28,10 @@ export default function App() {
 
   if (pathname === '/mail') {
     return <Mail />
+  }
+
+  if (pathname === '/file-manager') {
+    return <FileManager />
   }
 
   if (isProjectDetailsPath(pathname)) {
@@ -62,7 +67,7 @@ export default function App() {
           <Route path="/projects" element={<Projects />} />
           {navItems
             .flatMap((item) => item.children || [item])
-            .filter((item) => !['/', '/ecommerce', '/ecommerce/products', '/ecommerce/orders', '/ecommerce/customers', '/calendar', '/mail', '/task', '/projects'].includes(item.path))
+            .filter((item) => !['/', '/ecommerce', '/ecommerce/products', '/ecommerce/orders', '/ecommerce/customers', '/calendar', '/mail', '/task', '/projects', '/file-manager'].includes(item.path))
             .map(({ path, label, icon }) => (
               <Route
                 key={path}

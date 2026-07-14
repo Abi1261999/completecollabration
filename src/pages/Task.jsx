@@ -18,6 +18,7 @@ import {
   SlidersHorizontal,
   Trash2,
   UserPlus,
+  X,
 } from 'lucide-react'
 
 const projectList = [
@@ -231,6 +232,7 @@ const initialTasks = {
       attachments: 0,
       comments: 17,
       assignees: ['Jacob Hawkins', 'Shane Black'],
+      labels: ['frontend', 'backend'],
       statusBar: ['bg-sky-400'],
     },
     {
@@ -315,12 +317,87 @@ const imageStyles = {
   city: 'bg-gradient-to-br from-fuchsia-300 via-violet-400 to-indigo-500',
 }
 
+const labelOptions = [
+  { id: 'design', label: 'Design', className: 'bg-brand-dark text-white' },
+  { id: 'frontend', label: 'Frontend', className: 'bg-brand-teal text-white' },
+  { id: 'backend', label: 'Backend', className: 'bg-[#F08B7B] text-white' },
+]
+
+const dueDateOptions = [
+  { id: 'anytime', label: 'Due anytime' },
+  { id: 'today', label: 'Due today' },
+  { id: 'week', label: 'Due this week' },
+  { id: 'overdue', label: 'Overdue' },
+]
+
+const statusOptions = [
+  { id: 'any', label: 'Any status' },
+  { id: 'todo', label: 'To Do' },
+  { id: 'inProgress', label: 'In Progress' },
+  { id: 'completed', label: 'Completed' },
+]
+
+const defaultFilters = {
+  search: '',
+  labels: ['frontend'],
+  members: ['Shane Black'],
+  dueDate: 'anytime',
+  status: 'completed',
+}
+
+function getTaskLabels(task) {
+  if (task.labels) {
+    return task.labels
+  }
+
+  const title = task.title.toLowerCase()
+  if (title.includes('server') || title.includes('startup')) {
+    return ['backend']
+  }
+
+  if (title.includes('module') || title.includes('template') || title.includes('dashboard') || title.includes('auth')) {
+    return ['frontend']
+  }
+
+  return ['design']
+}
+
+function taskMatchesFilters(task, columnId, filters) {
+  const query = filters.search.trim().toLowerCase()
+  if (query && !task.title.toLowerCase().includes(query) && !task.description?.toLowerCase().includes(query)) {
+    return false
+  }
+
+  if (filters.labels.length > 0) {
+    const taskLabels = getTaskLabels(task)
+    if (!filters.labels.some((label) => taskLabels.includes(label))) {
+      return false
+    }
+  }
+
+  if (filters.members.length > 0 && !task.assignees.some((member) => filters.members.includes(member))) {
+    return false
+  }
+
+  if (filters.status !== 'any' && filters.status !== columnId) {
+    return false
+  }
+
+  return true
+}
+
+function filterColumnTasks(columnTasks, columnId, filters) {
+  return columnTasks.filter((task) => taskMatchesFilters(task, columnId, filters))
+}
+
 export default function Task() {
   const [activeProjectId, setActiveProjectId] = useState('design-plans')
   const [projectOpen, setProjectOpen] = useState(false)
   const [projectQuery, setProjectQuery] = useState('')
   const [addOpen, setAddOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
+  const [appliedFilters, setAppliedFilters] = useState(defaultFilters)
+  const [draftFilters, setDraftFilters] = useState(defaultFilters)
   const [tasks, setTasks] = useState(initialTasks)
   const [columnAccents, setColumnAccents] = useState(defaultColumnAccents)
   const [openColumnMenu, setOpenColumnMenu] = useState(null)
@@ -340,13 +417,33 @@ export default function Task() {
     return projectList.filter((project) => project.name.toLowerCase().includes(query))
   }, [projectQuery])
 
+  const visibleTasks = useMemo(
+    () => ({
+      todo: filterColumnTasks(tasks.todo, 'todo', appliedFilters),
+      inProgress: filterColumnTasks(tasks.inProgress, 'inProgress', appliedFilters),
+      completed: filterColumnTasks(tasks.completed, 'completed', appliedFilters),
+    }),
+    [tasks, appliedFilters],
+  )
+
+  const memberOptions = useMemo(() => {
+    const members = new Set()
+    Object.values(tasks).forEach((columnTasks) => {
+      columnTasks.forEach((task) => {
+        task.assignees.forEach((member) => members.add(member))
+      })
+    })
+
+    return [...members].sort()
+  }, [tasks])
+
   const counts = useMemo(
     () => ({
-      todo: tasks.todo.length,
-      inProgress: tasks.inProgress.length,
-      completed: tasks.completed.length,
+      todo: visibleTasks.todo.length,
+      inProgress: visibleTasks.inProgress.length,
+      completed: visibleTasks.completed.length,
     }),
-    [tasks],
+    [visibleTasks],
   )
 
   const moveTask = (taskId, fromColumn, toColumn) => {
@@ -455,20 +552,50 @@ export default function Task() {
     }
   }
 
+  const openFilterPanel = () => {
+    setDraftFilters(appliedFilters)
+    setFilterOpen(true)
+    setProjectOpen(false)
+    setAddOpen(false)
+  }
+
+  const applyFilters = () => {
+    setAppliedFilters(draftFilters)
+    setFilterOpen(false)
+  }
+
+  const resetFilters = () => {
+    setDraftFilters(defaultFilters)
+    setAppliedFilters(defaultFilters)
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden p-4 md:p-6">
-      {(projectOpen || addOpen || filterOpen || openColumnMenu) && (
+      {(projectOpen || addOpen || openColumnMenu) && (
         <button
           className="fixed inset-0 z-10 cursor-default"
           aria-label="Close menus"
           onClick={() => {
             setProjectOpen(false)
             setAddOpen(false)
-            setFilterOpen(false)
             setOpenColumnMenu(null)
           }}
         />
       )}
+
+      {filterOpen ? (
+        <>
+          <button className="fixed inset-0 z-30 bg-ink-900/40" aria-label="Close filter panel" onClick={() => setFilterOpen(false)} />
+          <FilterPanel
+            filters={draftFilters}
+            memberOptions={memberOptions}
+            onChange={setDraftFilters}
+            onClose={() => setFilterOpen(false)}
+            onApply={applyFilters}
+            onReset={resetFilters}
+          />
+        </>
+      ) : null}
 
       <div className="relative z-20 mb-4 flex shrink-0 flex-col gap-4 md:mb-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="relative">
@@ -492,26 +619,11 @@ export default function Task() {
               className={`flex h-10 w-10 items-center justify-center rounded-xl border border-ink-100 ${
                 filterOpen ? 'bg-ink-50 text-ink-700' : 'text-ink-500 hover:bg-ink-50'
               }`}
-              onClick={() => {
-                setFilterOpen((open) => !open)
-                setProjectOpen(false)
-                setAddOpen(false)
-              }}
+              onClick={openFilterPanel}
               aria-label="Filter tasks"
             >
               <SlidersHorizontal size={18} />
             </button>
-            {filterOpen ? (
-              <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-ink-100 bg-white p-4 shadow-2xl">
-                <p className="mb-3 text-sm font-medium text-ink-700">Show columns</p>
-                {columns.map((column) => (
-                  <label key={column.id} className="flex items-center gap-2 py-1.5 text-sm text-ink-500">
-                    <input type="checkbox" defaultChecked className="accent-brand-dark" />
-                    {column.title}
-                  </label>
-                ))}
-              </div>
-            ) : null}
           </div>
 
           <div className="relative">
@@ -537,7 +649,7 @@ export default function Task() {
             key={column.id}
             column={column}
             accent={columnAccents[column.id]}
-            tasks={tasks[column.id]}
+            tasks={visibleTasks[column.id]}
             count={counts[column.id]}
             isDropTarget={dropColumn === column.id}
             menuOpen={openColumnMenu === column.id}
@@ -854,6 +966,235 @@ function TaskCard({ task, onDragStart, onDragEnd, onToggleSubtask }) {
   )
 }
 
+function FilterPanel({ filters, memberOptions, onChange, onClose, onApply, onReset }) {
+  const [memberQuery, setMemberQuery] = useState('')
+  const [dueDateOpen, setDueDateOpen] = useState(false)
+  const [statusOpen, setStatusOpen] = useState(false)
+
+  const updateFilters = (patch) => {
+    onChange((current) => ({ ...current, ...patch }))
+  }
+
+  const toggleLabel = (labelId) => {
+    onChange((current) => {
+      const labels = current.labels.includes(labelId)
+        ? current.labels.filter((label) => label !== labelId)
+        : [...current.labels, labelId]
+
+      return { ...current, labels }
+    })
+  }
+
+  const removeMember = (member) => {
+    updateFilters({ members: filters.members.filter((name) => name !== member) })
+  }
+
+  const addMember = (member) => {
+    if (!filters.members.includes(member)) {
+      updateFilters({ members: [...filters.members, member] })
+    }
+    setMemberQuery('')
+  }
+
+  const filteredMemberOptions = memberOptions.filter(
+    (member) =>
+      member.toLowerCase().includes(memberQuery.toLowerCase()) && !filters.members.includes(member),
+  )
+
+  const selectedDueDate = dueDateOptions.find((option) => option.id === filters.dueDate) || dueDateOptions[0]
+  const selectedStatus = statusOptions.find((option) => option.id === filters.status) || statusOptions[0]
+
+  return (
+    <aside className="fixed right-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-full max-w-[403px] flex-col border-l border-ink-100 bg-white shadow-2xl">
+      <div className="flex items-center justify-between border-b border-ink-100 px-6 py-5">
+        <h2 className="text-2xl font-semibold text-ink-900">Filter</h2>
+        <button
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-50 text-ink-500 hover:bg-ink-100 hover:text-ink-700"
+          onClick={onClose}
+          aria-label="Close filter panel"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="relative">
+          <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" />
+          <input
+            value={filters.search}
+            onChange={(event) => updateFilters({ search: event.target.value })}
+            placeholder="Search Tasks..."
+            className="h-12 w-full rounded-xl border border-ink-100 bg-white pl-11 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+          />
+        </div>
+
+        <FilterSection label="Labels">
+          <div className="flex flex-wrap gap-2">
+            {labelOptions.map((label) => {
+              const isSelected = filters.labels.includes(label.id)
+              return (
+                <button
+                  key={label.id}
+                  type="button"
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-opacity ${label.className} ${
+                    isSelected ? 'opacity-100 ring-2 ring-white ring-offset-1' : 'opacity-90 hover:opacity-100'
+                  }`}
+                  onClick={() => toggleLabel(label.id)}
+                >
+                  {label.label}
+                  {isSelected ? <Check size={14} /> : null}
+                </button>
+              )
+            })}
+          </div>
+        </FilterSection>
+
+        <FilterSection label="Members">
+          <div className="rounded-xl border border-ink-100 p-3">
+            <div className="flex flex-wrap gap-2">
+              {filters.members.map((member) => (
+                <span
+                  key={member}
+                  className="inline-flex items-center gap-2 rounded-lg bg-ink-50 px-2 py-1.5 text-sm text-ink-700"
+                >
+                  <Avatar name={member} size="xs" />
+                  {member}
+                  <button type="button" className="text-ink-400 hover:text-ink-700" onClick={() => removeMember(member)} aria-label={`Remove ${member}`}>
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="relative mt-3">
+              <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+              <input
+                value={memberQuery}
+                onChange={(event) => setMemberQuery(event.target.value)}
+                placeholder="Search members..."
+                className="h-10 w-full rounded-lg border border-ink-100 bg-white pl-10 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+              />
+            </div>
+            {memberQuery && filteredMemberOptions.length > 0 ? (
+              <ul className="mt-2 max-h-32 overflow-y-auto rounded-lg border border-ink-100">
+                {filteredMemberOptions.map((member) => (
+                  <li key={member}>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink-600 hover:bg-ink-50"
+                      onClick={() => addMember(member)}
+                    >
+                      <Avatar name={member} size="xs" />
+                      {member}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        </FilterSection>
+
+        <FilterSection label="Due Date">
+          <div className="relative">
+            <button
+              type="button"
+              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+              onClick={() => {
+                setDueDateOpen((open) => !open)
+                setStatusOpen(false)
+              }}
+            >
+              <span className="flex items-center gap-3">
+                <CalendarDays size={16} className="text-ink-400" />
+                {selectedDueDate.label}
+              </span>
+              <ChevronDown size={16} className="text-ink-400" />
+            </button>
+            {dueDateOpen ? (
+              <div className="absolute left-0 right-0 top-14 z-10 overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-card">
+                {dueDateOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                      option.id === filters.dueDate ? 'font-medium text-brand-dark' : 'text-ink-600'
+                    }`}
+                    onClick={() => {
+                      updateFilters({ dueDate: option.id })
+                      setDueDateOpen(false)
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </FilterSection>
+
+        <FilterSection label="Status">
+          <div className="relative">
+            <button
+              type="button"
+              className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+              onClick={() => {
+                setStatusOpen((open) => !open)
+                setDueDateOpen(false)
+              }}
+            >
+              <span className="flex items-center gap-3">
+                <Check size={16} className="text-ink-400" />
+                {selectedStatus.label}
+              </span>
+              <ChevronDown size={16} className="text-ink-400" />
+            </button>
+            {statusOpen ? (
+              <div className="absolute left-0 right-0 top-14 z-10 overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-card">
+                {statusOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                      option.id === filters.status ? 'font-medium text-brand-dark' : 'text-ink-600'
+                    }`}
+                    onClick={() => {
+                      updateFilters({ status: option.id })
+                      setStatusOpen(false)
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </FilterSection>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 border-t border-ink-100 px-6 py-5">
+        <button
+          type="button"
+          className="h-12 flex-1 rounded-xl bg-brand-dark text-sm font-semibold text-white hover:bg-brand-green"
+          onClick={onApply}
+        >
+          Apply Filters
+        </button>
+        <button type="button" className="text-sm font-medium text-brand-dark underline hover:text-brand-green" onClick={onReset}>
+          Reset all Filters
+        </button>
+      </div>
+    </aside>
+  )
+}
+
+function FilterSection({ label, children }) {
+  return (
+    <section className="mt-8">
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-400">{label}</h3>
+      {children}
+    </section>
+  )
+}
+
 function AddTaskModal({ title, onTitleChange, onClose, onSave }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -880,10 +1221,15 @@ function AddTaskModal({ title, onTitleChange, onClose, onSave }) {
   )
 }
 
-function Avatar({ name }) {
+function Avatar({ name, size = 'md' }) {
+  const sizes = {
+    xs: 'h-6 w-6 text-[8px]',
+    md: 'h-7 w-7 text-[9px]',
+  }
+
   return (
     <div
-      className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#E98B70] to-[#C65E43] text-[9px] font-semibold text-white"
+      className={`flex items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#E98B70] to-[#C65E43] font-semibold text-white ${sizes[size] || sizes.md}`}
       title={name}
     >
       {name

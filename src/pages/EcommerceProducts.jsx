@@ -63,7 +63,10 @@ export default function EcommerceProducts() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <button className="flex items-center gap-2 rounded-xl border border-ink-100 bg-white px-4 py-2 text-sm text-ink-500 shadow-card hover:bg-ink-50">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-xl border border-ink-100 bg-white px-4 py-2 text-sm text-ink-500 shadow-card hover:bg-ink-50"
+          >
             <Download size={16} />
             Export
             <ChevronDown size={14} />
@@ -79,10 +82,10 @@ export default function EcommerceProducts() {
             <Plus size={18} />
           </button>
           <div className="ml-0 flex items-center gap-3 text-ink-400 lg:ml-8">
-            <button className="text-brand-dark" aria-label="List view">
+            <button type="button" className="text-brand-dark" aria-label="List view">
               <List size={18} />
             </button>
-            <button className="hover:text-ink-700" aria-label="Grid view">
+            <button type="button" className="hover:text-ink-700" aria-label="Grid view">
               <Grid2X2 size={17} />
             </button>
           </div>

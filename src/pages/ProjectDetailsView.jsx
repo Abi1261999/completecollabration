@@ -177,7 +177,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
         <div className="shrink-0 border-b border-ink-100 p-4">
           <button
             type="button"
-            className="mb-4 text-sm font-medium text-brand-dark hover:text-brand-green"
+            className="mb-4 text-body font-medium text-brand-dark hover:text-brand-green"
             onClick={onClose}
           >
             ← Back to Projects
@@ -188,7 +188,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
               value={sidebarQuery}
               onChange={(event) => setSidebarQuery(event.target.value)}
               placeholder="Search..."
-              className="h-10 w-full rounded-xl border border-ink-100 bg-ink-50 pl-10 pr-3 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+              className="h-10 w-full rounded-xl border border-ink-100 bg-ink-50 pl-10 pr-3 text-body text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
             />
           </div>
         </div>
@@ -207,8 +207,8 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
                   <div className="flex items-start gap-3">
                     <BrandLogo brand={project.brand} size="sm" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-ink-900">{project.title}</p>
-                      <p className="truncate text-xs text-ink-400">{project.company}</p>
+                      <p className="truncate text-card-title text-ink-900">{project.title}</p>
+                      <p className="truncate text-caption text-ink-500">{project.company}</p>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center justify-between">
@@ -231,8 +231,8 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
           <div className="flex min-w-0 items-center gap-4">
             <BrandLogo brand={selectedProject.brand} size="md" />
             <div className="min-w-0">
-              <h2 className="text-xl font-semibold text-ink-900 md:text-2xl">{selectedProject.title}</h2>
-              <p className="text-sm text-ink-400">{selectedProject.company}</p>
+              <h2 className="text-page-title text-ink-900 md:text-[1.875rem]">{selectedProject.title}</h2>
+              <p className="text-body text-ink-500">{selectedProject.company}</p>
             </div>
           </div>
           <button
@@ -253,7 +253,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
         </DetailSection>
 
         <DetailSection label="Description">
-          <p className="text-sm leading-7 text-ink-600">{detail.longDescription}</p>
+          <p className="text-body leading-7 text-ink-600">{detail.longDescription}</p>
         </DetailSection>
 
         <DetailSection label={`Checklist (${checklistProgress}%)`}>
@@ -272,7 +272,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
               >
                 <button
                   type="button"
-                  className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm text-ink-600"
+                  className="flex min-w-0 flex-1 items-center gap-2 text-left text-body text-ink-600"
                   onClick={() => toggleChecklistItem(item.id)}
                 >
                   <span
@@ -295,7 +295,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
               </li>
             ))}
           </ul>
-          <button type="button" className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-brand-dark hover:text-brand-green">
+          <button type="button" className="mt-3 inline-flex items-center gap-2 text-body font-medium text-brand-dark hover:text-brand-green">
             <Plus size={14} />
             Add Checklist Item
           </button>
@@ -305,8 +305,8 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
           <div className="flex gap-6 border-b border-ink-100">
             <button
               type="button"
-              className={`pb-3 text-xs font-semibold uppercase tracking-wide ${
-                activeTab === 'comments' ? 'border-b-2 border-brand-dark text-brand-dark' : 'text-ink-400'
+              className={`pb-3 text-section-title uppercase ${
+                activeTab === 'comments' ? 'border-b-2 border-brand-dark text-brand-dark' : 'text-ink-500'
               }`}
               onClick={() => setActiveTab('comments')}
             >
@@ -314,8 +314,8 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
             </button>
             <button
               type="button"
-              className={`pb-3 text-xs font-semibold uppercase tracking-wide ${
-                activeTab === 'activity' ? 'border-b-2 border-brand-dark text-brand-dark' : 'text-ink-400'
+              className={`pb-3 text-section-title uppercase ${
+                activeTab === 'activity' ? 'border-b-2 border-brand-dark text-brand-dark' : 'text-ink-500'
               }`}
               onClick={() => setActiveTab('activity')}
             >
@@ -330,12 +330,12 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
                   value={commentDraft}
                   onChange={(event) => setCommentDraft(event.target.value)}
                   placeholder="Add Comment..."
-                  className="min-h-[80px] w-full resize-none bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400"
+                  className="min-h-[80px] w-full resize-none bg-transparent text-body text-ink-700 outline-none placeholder:text-ink-400"
                 />
                 <div className="mt-3 flex items-center justify-between">
                   <button
                     type="button"
-                    className="rounded-xl bg-brand-dark px-4 py-2 text-sm font-medium text-white hover:bg-brand-green"
+                    className="rounded-xl bg-brand-dark px-4 py-2 text-body font-medium text-white hover:bg-brand-green"
                     onClick={handleAddComment}
                   >
                     Comment
@@ -360,17 +360,17 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
                     <MemberAvatar name={comment.author} size="md" />
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-ink-900">{comment.author}</span>
-                        <span className="text-xs text-ink-400">{comment.time}</span>
+                        <span className="text-card-title text-ink-900">{comment.author}</span>
+                        <span className="text-caption text-ink-500">{comment.time}</span>
                       </div>
-                      <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink-600">{comment.text}</p>
+                      <p className="mt-2 whitespace-pre-line text-body leading-6 text-ink-600">{comment.text}</p>
                       {comment.images ? (
                         <div className="mt-3 flex items-center gap-2">
                           {comment.images.slice(0, 3).map((image) => (
                             <div key={image} className={`h-12 w-12 rounded-lg ${imageStyles[image]}`} />
                           ))}
                           {comment.moreImages ? (
-                            <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-green/15 text-sm font-semibold text-brand-dark">
+                            <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-green/15 text-body font-semibold text-brand-dark">
                               +{comment.moreImages}
                             </span>
                           ) : null}
@@ -383,13 +383,13 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
             </>
           ) : (
             <ul className="mt-4 space-y-4">
-              <li className="text-sm text-ink-500">
+              <li className="text-body text-ink-500">
                 <span className="font-medium text-ink-700">Jane Wilson</span> commented on the project
               </li>
-              <li className="text-sm text-ink-500">
+              <li className="text-body text-ink-500">
                 <span className="font-medium text-ink-700">Jacob Hawkins</span> updated the checklist
               </li>
-              <li className="text-sm text-ink-500">
+              <li className="text-body text-ink-500">
                 <span className="font-medium text-ink-700">Regina Cooper</span> changed the status to Started
               </li>
             </ul>
@@ -401,7 +401,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
         <div className="relative">
           <button
             type="button"
-            className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+            className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-body text-ink-700 hover:bg-ink-50"
             onClick={() => setStatusOpen((open) => !open)}
           >
             <span className="flex items-center gap-2">
@@ -416,7 +416,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
                 <button
                   key={option.id}
                   type="button"
-                  className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-ink-50"
+                  className="flex w-full items-center justify-between px-4 py-2.5 text-left text-body hover:bg-ink-50"
                   onClick={() => handleStatusChange(option.id)}
                 >
                   <span className="flex items-center gap-3 text-ink-700">
@@ -446,8 +446,8 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
               <li key={member.name} className="flex items-center gap-3">
                 <MemberAvatar name={member.name} size="md" />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-ink-800">{member.name}</p>
-                  <p className="truncate text-xs text-ink-400">{member.role}</p>
+                  <p className="truncate text-card-title text-ink-800">{member.name}</p>
+                  <p className="truncate text-caption text-ink-500">{member.role}</p>
                 </div>
               </li>
             ))}
@@ -475,8 +475,8 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-ink-800">{file.name}</p>
-                  <p className="text-xs text-ink-400">{file.size}</p>
+                  <p className="truncate text-card-title text-ink-800">{file.name}</p>
+                  <p className="text-caption text-ink-500">{file.size}</p>
                 </div>
                 <button type="button" className="rounded p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-700" aria-label={`Download ${file.name}`}>
                   <Download size={14} />
@@ -493,7 +493,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
 function DetailSection({ label, children }) {
   return (
     <section className="mt-6">
-      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-400">{label}</h3>
+      <h3 className="mb-3 text-section-title uppercase text-ink-500">{label}</h3>
       {children}
     </section>
   )
@@ -506,8 +506,8 @@ function MetaCard({ icon: Icon, label, value, iconClass }) {
         <Icon size={18} />
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-ink-400">{label}</p>
-        <p className="truncate text-sm font-semibold text-ink-800">{value}</p>
+        <p className="text-caption text-ink-500">{label}</p>
+        <p className="truncate text-card-title text-ink-800">{value}</p>
       </div>
     </div>
   )
@@ -516,7 +516,7 @@ function MetaCard({ icon: Icon, label, value, iconClass }) {
 function TimeBadge({ timeLeft, urgent, compact = false }) {
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full text-xs font-medium ${
+      className={`inline-flex items-center gap-1.5 rounded-full text-caption font-medium ${
         compact ? 'bg-transparent px-0 py-0' : 'px-2.5 py-1'
       } ${urgent ? 'text-orange-500' : 'text-ink-400'}`}
     >
@@ -528,8 +528,8 @@ function TimeBadge({ timeLeft, urgent, compact = false }) {
 
 function MemberAvatar({ name, size = 'sm' }) {
   const sizes = {
-    sm: 'h-7 w-7 text-[9px]',
-    md: 'h-10 w-10 text-xs',
+    sm: 'h-7 w-7 text-caption',
+    md: 'h-10 w-10 text-caption',
   }
 
   return (

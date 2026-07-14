@@ -43,7 +43,7 @@ const folderTree = [
   { id: 'downloads', label: 'Downloads' },
 ]
 
-const gridFolders = [
+const initialGridFolders = [
   { id: 'design', name: 'Design', size: '5.8 GB', kind: 'folder' },
   { id: 'projects', name: 'Projects', size: '3.2 GB', kind: 'folder' },
   { id: 'music', name: 'Music', size: '1.5 GB', kind: 'folder' },
@@ -105,12 +105,14 @@ const uploadQueueSeed = [
   { id: 'up-8', name: 'Design.ai', size: '4.5 MB', type: 'illustrator', progress: 100, status: 'done' },
 ]
 
-const listRows = [
-  ...gridFolders.map((item) => ({ ...item, date: '12.09.20', owner: 'ArtTemplate' })),
+const listRowsFromFolders = (folders) => [
+  ...folders.map((item) => ({ ...item, date: '12.09.20', owner: 'ArtTemplate' })),
   ...gridFiles.map((item) => ({ ...item, date: '12.09.20', owner: 'ArtTemplate' })),
 ]
 
 export default function FileManager() {
+  const [folders, setFolders] = useState(initialGridFolders)
+  const [folderDetails, setFolderDetails] = useState(itemDetails)
   const [activeTreeFolder, setActiveTreeFolder] = useState('projects')
   const [expandedFolders, setExpandedFolders] = useState({ projects: true })
   const [selectedId, setSelectedId] = useState('projects')
@@ -120,22 +122,23 @@ export default function FileManager() {
   const [iconNavOpen, setIconNavOpen] = useState(false)
   const [contextMenu, setContextMenu] = useState(null)
   const [uploadOpen, setUploadOpen] = useState(false)
+  const [addFolderOpen, setAddFolderOpen] = useState(false)
   const [uploads, setUploads] = useState(uploadQueueSeed)
   const [settings, setSettings] = useState({ fileSharing: true, backup: false, sync: false })
   const [mobilePanel, setMobilePanel] = useState('main')
   const menuRef = useRef(null)
 
   const selectedItem = useMemo(() => {
-    return [...gridFolders, ...gridFiles].find((item) => item.id === selectedId) || gridFolders[1]
-  }, [selectedId])
+    return [...folders, ...gridFiles].find((item) => item.id === selectedId) || folders[1]
+  }, [selectedId, folders])
 
-  const selectedDetails = itemDetails[selectedId] || itemDetails.projects
+  const selectedDetails = folderDetails[selectedId] || folderDetails.projects
 
   const filteredFolders = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
-    if (!q) return gridFolders
-    return gridFolders.filter((item) => item.name.toLowerCase().includes(q))
-  }, [searchQuery])
+    if (!q) return folders
+    return folders.filter((item) => item.name.toLowerCase().includes(q))
+  }, [searchQuery, folders])
 
   const filteredFiles = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -145,9 +148,10 @@ export default function FileManager() {
 
   const filteredListRows = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
-    if (!q) return listRows
-    return listRows.filter((item) => item.name.toLowerCase().includes(q))
-  }, [searchQuery])
+    const rows = listRowsFromFolders(folders)
+    if (!q) return rows
+    return rows.filter((item) => item.name.toLowerCase().includes(q))
+  }, [searchQuery, folders])
 
   useEffect(() => {
     if (!contextMenu) return undefined
@@ -188,6 +192,41 @@ export default function FileManager() {
   const openUploadPanel = () => {
     setUploads(uploadQueueSeed.map((item) => ({ ...item })))
     setUploadOpen(true)
+  }
+
+  const openAddFolderModal = () => {
+    setAddFolderOpen(true)
+  }
+
+  const handleCreateFolder = (name) => {
+    const id = `folder-${Date.now()}`
+    const newFolder = { id, name, size: '0 MB', kind: 'folder' }
+    const now = new Date()
+    const formatted = now.toLocaleString('en-US', {
+      month: 'short',
+      day: '2-digit',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+
+    setFolders((current) => [...current, newFolder])
+    setFolderDetails((current) => ({
+      ...current,
+      [id]: {
+        type: 'Folder',
+        size: '0 MB',
+        owner: 'ArtTemplate',
+        location: 'My Files',
+        modified: formatted,
+        created: formatted,
+      },
+    }))
+    setSelectedId(id)
+    setAddFolderOpen(false)
+    if (window.innerWidth < 1024) {
+      setMobilePanel('info')
+    }
   }
 
   useEffect(() => {
@@ -415,9 +454,9 @@ export default function FileManager() {
                     ))}
                     <button
                       type="button"
-                      onClick={openUploadPanel}
-                      className="group flex min-h-[148px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink-200 bg-ink-50/50 transition-colors hover:border-ink-300 hover:bg-ink-50"
-                      aria-label="Add folder and upload files"
+                      onClick={openAddFolderModal}
+                      className="group flex min-h-[148px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink-200 bg-transparent transition-colors hover:border-ink-300 hover:bg-ink-50"
+                      aria-label="Add folder"
                     >
                       <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-ink-100 transition-transform group-hover:scale-105">
                         <Plus size={22} className="text-ink-700" strokeWidth={1.75} />
@@ -592,6 +631,86 @@ export default function FileManager() {
       {uploadOpen ? (
         <UploadPanel uploads={uploads} onClose={() => setUploadOpen(false)} onRetry={retryUpload} />
       ) : null}
+
+      {addFolderOpen ? <AddFolderModal onClose={() => setAddFolderOpen(false)} onCreate={handleCreateFolder} /> : null}
+    </div>
+  )
+}
+
+function AddFolderModal({ onClose, onCreate }) {
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    const trimmed = name.trim()
+    if (!trimmed) {
+      setError('Please enter a folder name.')
+      return
+    }
+    onCreate(trimmed)
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+      <button type="button" className="absolute inset-0 bg-ink-900/40" aria-label="Close dialog" onClick={onClose} />
+      <div className="relative z-10 w-full max-w-md overflow-hidden rounded-t-2xl bg-white shadow-2xl sm:rounded-2xl">
+        <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4 sm:px-6 sm:py-5">
+          <h2 className="text-lg font-semibold text-ink-900 sm:text-xl">Add Folder</h2>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-50 text-ink-500 hover:bg-ink-100 hover:text-ink-700"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="px-5 py-6 sm:px-6">
+          <div className="mb-6 flex flex-col items-center">
+            <div className="flex h-28 w-28 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink-200 bg-ink-50">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-ink-100">
+                <Plus size={22} className="text-ink-700" strokeWidth={1.75} />
+              </span>
+              <span className="mt-2 text-xs text-ink-400">New Folder</span>
+            </div>
+          </div>
+
+          <label className="mb-2 block text-sm font-medium text-ink-700" htmlFor="folder-name">
+            Folder Name
+          </label>
+          <input
+            id="folder-name"
+            type="text"
+            value={name}
+            onChange={(event) => {
+              setName(event.target.value)
+              if (error) setError('')
+            }}
+            placeholder="Enter folder name"
+            autoFocus
+            className="h-12 w-full rounded-xl border border-ink-100 px-4 text-sm text-ink-800 outline-none placeholder:text-ink-400 focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/15"
+          />
+          {error ? <p className="mt-2 text-xs text-red-500">{error}</p> : null}
+
+          <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              className="h-11 rounded-xl border border-ink-100 px-5 text-sm font-medium text-ink-600 hover:bg-ink-50"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="h-11 rounded-xl bg-brand-dark px-5 text-sm font-medium text-white hover:bg-brand-green"
+            >
+              Add Folder
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

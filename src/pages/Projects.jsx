@@ -16,7 +16,44 @@ import {
   X,
 } from 'lucide-react'
 
-const TEAM_MEMBERS = ['Shane Black', 'Jane Wilson', 'Ronald Robertson', 'Judith Black', 'Calvin Flores']
+const projectFormStatusOptions = [
+  { id: 'Started', label: 'Started' },
+  { id: 'On Hold', label: 'On Hold' },
+  { id: 'Completed', label: 'Completed' },
+]
+
+const dateOptions = ['12.07.2020', '15.01.2020', '20.08.2020', '01.09.2020']
+const timeOptions = ['00:00', '09:00', '12:00', '18:00']
+
+const addProjectFormDefaults = {
+  brand: 'dropbox',
+  status: 'Started',
+  title: 'App Development',
+  company: 'Dropbox, Inc.',
+  description: 'Create a mobile application on iOS and Android devices.',
+  startTime: '00:00',
+  startDate: '12.07.2020',
+  endTime: '00:00',
+  endDate: '12.07.2020',
+  members: ['Shane Black'],
+  budget: '2.500.000',
+}
+
+function projectToForm(project) {
+  return {
+    brand: project.brand,
+    status: project.status,
+    title: project.title,
+    company: project.company,
+    description: project.description,
+    startTime: project.startTime || '00:00',
+    startDate: project.startDate || '12.07.2020',
+    endTime: project.endTime || '00:00',
+    endDate: project.endDate || '12.07.2020',
+    members: [...project.members],
+    budget: project.budget || '2.500.000',
+  }
+}
 
 const dueDateOptions = [
   { id: 'anytime', label: 'Due anytime' },
@@ -121,13 +158,19 @@ const featuredProjects = [
     brand: 'firebase',
     title: 'App Development',
     company: 'Google, Inc.',
-    description: 'Build a cross-platform app backed by Firebase authentication and storage.',
+    description:
+      'The plan for the development of a React Native application project. To develop options (Inbox template, Chat template, tasks template, Projects template) of cool user interface design templates, to work out the smallest details. The main goal of this project is to develop a React Native application with 30 screens.',
     progress: 25,
     timeLeft: '1 week left',
     urgent: false,
     status: 'Started',
     teamSize: 2,
-    members: assignMembers(2, 5),
+    members: ['Regina Cooper', 'Jane Wilson'],
+    budget: '2.500.000',
+    startTime: '00:00',
+    startDate: '12.07.2020',
+    endTime: '00:00',
+    endDate: '12.07.2020',
   },
   {
     id: 7,
@@ -222,6 +265,11 @@ function buildProjects() {
         status,
         teamSize: 2 + (index % 2),
         members: assignMembers(2 + (index % 2), index),
+        budget: '2.500.000',
+        startTime: '00:00',
+        startDate: '12.07.2020',
+        endTime: '00:00',
+        endDate: '12.07.2020',
       })
       currentCounts[status] += 1
       id += 1
@@ -231,7 +279,31 @@ function buildProjects() {
   return projects
 }
 
-const projects = buildProjects()
+function formToProject(form, existingProject = null) {
+  const progress =
+    form.status === 'Completed' ? 100 : existingProject?.progress ?? (form.status === 'On Hold' ? 30 : 50)
+
+  return {
+    id: existingProject?.id ?? Date.now(),
+    brand: form.brand,
+    title: form.title,
+    company: form.company,
+    description: form.description,
+    progress,
+    timeLeft: existingProject?.timeLeft ?? '1 week left',
+    urgent: existingProject?.urgent ?? false,
+    status: form.status,
+    teamSize: form.members.length || 1,
+    members: form.members.length > 0 ? form.members : ['Shane Black'],
+    budget: form.budget,
+    startTime: form.startTime,
+    startDate: form.startDate,
+    endTime: form.endTime,
+    endDate: form.endDate,
+  }
+}
+
+const initialProjects = buildProjects()
 
 function projectMatchesDueDate(project, dueDate) {
   if (dueDate === 'anytime') return true
@@ -276,6 +348,7 @@ const statusTabs = [
 ]
 
 export default function Projects() {
+  const [projectList, setProjectList] = useState(initialProjects)
   const [activeTab, setActiveTab] = useState('All')
   const [viewMode, setViewMode] = useState('grid')
   const [query, setQuery] = useState('')
@@ -283,20 +356,23 @@ export default function Projects() {
   const [appliedFilters, setAppliedFilters] = useState(emptyFilters)
   const [draftFilters, setDraftFilters] = useState(filterPanelDefaults)
   const [openMenuId, setOpenMenuId] = useState(null)
+  const [projectModal, setProjectModal] = useState(null)
+  const [editingProjectId, setEditingProjectId] = useState(null)
+  const [projectForm, setProjectForm] = useState(addProjectFormDefaults)
 
   const tabCounts = useMemo(() => {
     return {
-      All: projects.length,
-      Started: projects.filter((project) => project.status === 'Started').length,
-      'On Hold': projects.filter((project) => project.status === 'On Hold').length,
-      Completed: projects.filter((project) => project.status === 'Completed').length,
+      All: projectList.length,
+      Started: projectList.filter((project) => project.status === 'Started').length,
+      'On Hold': projectList.filter((project) => project.status === 'On Hold').length,
+      Completed: projectList.filter((project) => project.status === 'Completed').length,
     }
-  }, [])
+  }, [projectList])
 
   const filteredProjects = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
 
-    return projects.filter((project) => {
+    return projectList.filter((project) => {
       const matchesTab = activeTab === 'All' || project.status === activeTab
       const matchesQuery =
         !normalizedQuery ||
@@ -306,12 +382,54 @@ export default function Projects() {
 
       return matchesTab && matchesQuery && projectMatchesFilters(project, appliedFilters)
     })
-  }, [activeTab, appliedFilters, query])
+  }, [activeTab, appliedFilters, projectList, query])
 
   const openFilterPanel = () => {
     setDraftFilters(filterPanelDefaults)
     setFilterOpen(true)
     setOpenMenuId(null)
+    setProjectModal(null)
+  }
+
+  const openAddProjectModal = () => {
+    setProjectForm(addProjectFormDefaults)
+    setEditingProjectId(null)
+    setProjectModal('add')
+    setOpenMenuId(null)
+    setFilterOpen(false)
+  }
+
+  const openEditProjectModal = (project) => {
+    setProjectForm(projectToForm(project))
+    setEditingProjectId(project.id)
+    setProjectModal('edit')
+    setOpenMenuId(null)
+    setFilterOpen(false)
+  }
+
+  const closeProjectModal = () => {
+    setProjectModal(null)
+    setEditingProjectId(null)
+  }
+
+  const saveProject = () => {
+    if (projectModal === 'add') {
+      const nextId = projectList.reduce((max, project) => Math.max(max, project.id), 0) + 1
+      const newProject = formToProject({ ...projectForm, status: 'Started' }, { id: nextId })
+      setProjectList((current) => [...current, newProject])
+    }
+
+    if (projectModal === 'edit' && editingProjectId) {
+      const existingProject = projectList.find((project) => project.id === editingProjectId)
+      if (existingProject) {
+        const updatedProject = formToProject(projectForm, existingProject)
+        setProjectList((current) =>
+          current.map((project) => (project.id === editingProjectId ? updatedProject : project)),
+        )
+      }
+    }
+
+    closeProjectModal()
   }
 
   const applyFilters = () => {
@@ -327,6 +445,17 @@ export default function Projects() {
 
   return (
     <div className="relative p-4 md:p-8">
+      {projectModal ? (
+        <ProjectFormModal
+          mode={projectModal}
+          form={projectForm}
+          memberOptions={TEAM_MEMBERS}
+          onChange={setProjectForm}
+          onClose={closeProjectModal}
+          onSave={saveProject}
+        />
+      ) : null}
+
       {filterOpen ? (
         <>
           <button className="fixed inset-0 z-30 bg-ink-900/40" aria-label="Close filter panel" onClick={() => setFilterOpen(false)} />
@@ -365,7 +494,11 @@ export default function Projects() {
           >
             <SlidersHorizontal size={17} />
           </button>
-          <button className="flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-sm font-medium text-white shadow-card hover:bg-brand-green">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-xl bg-brand-dark px-4 py-2.5 text-sm font-medium text-white shadow-card hover:bg-brand-green"
+            onClick={openAddProjectModal}
+          >
             <Plus size={16} />
             Add Project
           </button>
@@ -422,6 +555,7 @@ export default function Projects() {
                 setFilterOpen(false)
               }}
               onMenuClose={() => setOpenMenuId(null)}
+              onEdit={openEditProjectModal}
             />
           ))}
         </div>
@@ -449,6 +583,7 @@ export default function Projects() {
                 setFilterOpen(false)
               }}
                   onMenuClose={() => setOpenMenuId(null)}
+                  onEdit={openEditProjectModal}
                 />
               ))}
             </tbody>
@@ -479,7 +614,7 @@ function ProjectTabs({ activeTab, tabCounts, onTabChange }) {
   )
 }
 
-function ProjectCard({ project, menuOpen, onMenuToggle, onMenuClose }) {
+function ProjectCard({ project, menuOpen, onMenuToggle, onMenuClose, onEdit }) {
   return (
     <article className="rounded-xl2 border border-ink-100 bg-white p-5 shadow-card transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
@@ -490,7 +625,7 @@ function ProjectCard({ project, menuOpen, onMenuToggle, onMenuClose }) {
             <p className="truncate text-xs text-ink-400">{project.company}</p>
           </div>
         </div>
-        <CardMenu project={project} open={menuOpen} onToggle={onMenuToggle} onClose={onMenuClose} />
+        <CardMenu project={project} open={menuOpen} onToggle={onMenuToggle} onClose={onMenuClose} onEdit={onEdit} />
       </div>
 
       <p className="mt-4 line-clamp-2 min-h-[40px] text-sm leading-5 text-ink-500">{project.description}</p>
@@ -516,7 +651,7 @@ function ProjectCard({ project, menuOpen, onMenuToggle, onMenuClose }) {
   )
 }
 
-function ProjectListRow({ project, menuOpen, onMenuToggle, onMenuClose }) {
+function ProjectListRow({ project, menuOpen, onMenuToggle, onMenuClose, onEdit }) {
   return (
     <tr className="border-b border-ink-100 last:border-b-0 hover:bg-ink-50/70">
       <td className="px-5 py-4">
@@ -546,13 +681,13 @@ function ProjectListRow({ project, menuOpen, onMenuToggle, onMenuClose }) {
         <TeamAvatars members={project.members} />
       </td>
       <td className="px-3 py-4">
-        <CardMenu project={project} open={menuOpen} onToggle={onMenuToggle} onClose={onMenuClose} align="right" />
+        <CardMenu project={project} open={menuOpen} onToggle={onMenuToggle} onClose={onMenuClose} onEdit={onEdit} align="right" />
       </td>
     </tr>
   )
 }
 
-function CardMenu({ project, open, onToggle, onClose, align = 'right' }) {
+function CardMenu({ project, open, onToggle, onClose, onEdit, align = 'right' }) {
   const menuRef = useRef(null)
 
   useEffect(() => {
@@ -569,7 +704,7 @@ function CardMenu({ project, open, onToggle, onClose, align = 'right' }) {
   }, [open, onClose])
 
   const menuItems = [
-    { label: 'Edit', icon: Pencil, destructive: false },
+    { label: 'Edit', icon: Pencil, destructive: false, action: () => onEdit(project) },
     { label: 'Add Member', icon: UserPlus, destructive: false },
     { label: 'Add Due Date', icon: Clock, destructive: false },
     { label: 'Delete Project', icon: Trash2, destructive: true, separated: true },
@@ -600,7 +735,10 @@ function CardMenu({ project, open, onToggle, onClose, align = 'right' }) {
                 className={`flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
                   item.separated ? 'mt-1 border-t border-ink-100' : ''
                 } ${item.destructive ? 'text-[#E98B70] hover:text-[#D97757]' : 'text-ink-600 hover:text-ink-900'}`}
-                onClick={onClose}
+                onClick={() => {
+                  item.action?.()
+                  onClose()
+                }}
               >
                 <Icon size={16} className={item.destructive ? 'text-[#E98B70]' : 'text-ink-400'} />
                 {item.label}
@@ -610,6 +748,325 @@ function CardMenu({ project, open, onToggle, onClose, align = 'right' }) {
         </div>
       ) : null}
     </div>
+  )
+}
+
+function ProjectFormModal({ mode, form, memberOptions, onChange, onClose, onSave }) {
+  const [statusOpen, setStatusOpen] = useState(false)
+  const [memberQuery, setMemberQuery] = useState('')
+  const [startDateOpen, setStartDateOpen] = useState(false)
+  const [endDateOpen, setEndDateOpen] = useState(false)
+  const isEdit = mode === 'edit'
+
+  const updateForm = (patch) => {
+    onChange((current) => ({ ...current, ...patch }))
+  }
+
+  const removeMember = (member) => {
+    updateForm({ members: form.members.filter((name) => name !== member) })
+  }
+
+  const addMember = (member) => {
+    if (!form.members.includes(member)) {
+      updateForm({ members: [...form.members, member] })
+    }
+    setMemberQuery('')
+  }
+
+  const filteredMemberOptions = memberOptions.filter(
+    (member) => member.toLowerCase().includes(memberQuery.toLowerCase()) && !form.members.includes(member),
+  )
+
+  const selectedStatus =
+    projectFormStatusOptions.find((option) => option.id === form.status) || projectFormStatusOptions[0]
+
+  const cycleBrand = () => {
+    const brands = ['dropbox', 'gitlab', 'bitbucket', 'python', 'slack', 'firebase', 'angular', 'vue', 'facebook']
+    const currentIndex = brands.indexOf(form.brand)
+    updateForm({ brand: brands[(currentIndex + 1) % brands.length] })
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <button className="absolute inset-0 bg-ink-900/40" aria-label="Close dialog" onClick={onClose} />
+      <div className="relative z-10 max-h-[92vh] w-full max-w-[520px] overflow-y-auto rounded-xl2 bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-ink-100 px-6 py-5">
+          <h2 className="text-xl font-semibold text-ink-900">{isEdit ? 'Edit Project' : 'Add Project'}</h2>
+          <button
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-50 text-ink-500 hover:bg-ink-100 hover:text-ink-700"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="px-6 py-6">
+          {isEdit ? (
+            <div className="relative mx-auto mb-8 flex h-28 w-28 items-center justify-center rounded-xl border-2 border-dashed border-ink-200 bg-ink-50">
+              <BrandLogo brand={form.brand} size="lg" />
+              <button
+                type="button"
+                className="absolute -right-1 -top-1 flex h-8 w-8 items-center justify-center rounded-full border border-ink-100 bg-white text-ink-500 shadow-card hover:bg-ink-50"
+                onClick={cycleBrand}
+                aria-label="Change project logo"
+              >
+                <Pencil size={14} />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="mx-auto mb-8 flex h-28 w-28 items-center justify-center rounded-xl border-2 border-dashed border-ink-200 bg-ink-50 text-ink-400 hover:border-ink-300 hover:text-ink-500"
+              aria-label="Upload project image"
+            >
+              <Plus size={28} strokeWidth={1.5} />
+            </button>
+          )}
+
+          {isEdit ? (
+            <ProjectFormField label="Status">
+              <div className="relative">
+                <button
+                  type="button"
+                  className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-4 text-sm text-ink-700 hover:bg-ink-50"
+                  onClick={() => setStatusOpen((open) => !open)}
+                >
+                  <span className="flex items-center gap-2">
+                    <Check size={16} className="text-ink-400" />
+                    {selectedStatus.label}
+                  </span>
+                  <ChevronDown size={16} className="text-ink-400" />
+                </button>
+                {statusOpen ? (
+                  <div className="absolute left-0 right-0 top-14 z-10 overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-card">
+                    {projectFormStatusOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        type="button"
+                        className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                          option.id === form.status ? 'font-medium text-brand-dark' : 'text-ink-600'
+                        }`}
+                        onClick={() => {
+                          updateForm({ status: option.id })
+                          setStatusOpen(false)
+                        }}
+                      >
+                        {option.id === form.status ? `✓ ${option.label}` : option.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+            </ProjectFormField>
+          ) : null}
+
+          <ProjectFormField label="Project Name">
+            <input
+              value={form.title}
+              onChange={(event) => updateForm({ title: event.target.value })}
+              className="h-12 w-full rounded-xl border border-ink-100 px-4 text-sm text-ink-700 outline-none focus:border-brand-dark"
+            />
+          </ProjectFormField>
+
+          <ProjectFormField label="Client Name">
+            <input
+              value={form.company}
+              onChange={(event) => updateForm({ company: event.target.value })}
+              className="h-12 w-full rounded-xl border border-ink-100 px-4 text-sm text-ink-700 outline-none focus:border-brand-dark"
+            />
+          </ProjectFormField>
+
+          <ProjectFormField label="Description">
+            <textarea
+              value={form.description}
+              onChange={(event) => updateForm({ description: event.target.value })}
+              rows={isEdit ? 5 : 3}
+              className="w-full resize-none rounded-xl border border-ink-100 px-4 py-3 text-sm leading-6 text-ink-700 outline-none focus:border-brand-dark"
+            />
+          </ProjectFormField>
+
+          <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+            <ProjectFormField label="Start Date">
+              <div className="flex gap-2">
+                <select
+                  value={form.startTime}
+                  onChange={(event) => updateForm({ startTime: event.target.value })}
+                  className="h-12 min-w-0 flex-1 rounded-xl border border-ink-100 bg-white px-3 text-sm text-ink-700 outline-none focus:border-brand-dark"
+                >
+                  {timeOptions.map((time) => (
+                    <option key={time} value={time}>
+                      {time}
+                    </option>
+                  ))}
+                </select>
+                <div className="relative min-w-0 flex-[1.4]">
+                  <button
+                    type="button"
+                    className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-3 text-sm text-ink-700 hover:bg-ink-50"
+                    onClick={() => {
+                      setStartDateOpen((open) => !open)
+                      setEndDateOpen(false)
+                    }}
+                  >
+                    <span className="truncate">{form.startDate}</span>
+                    <ChevronDown size={16} className="shrink-0 text-ink-400" />
+                  </button>
+                  {startDateOpen ? (
+                    <div className="absolute left-0 right-0 top-14 z-10 overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-card">
+                      {dateOptions.map((date) => (
+                        <button
+                          key={date}
+                          type="button"
+                          className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                            date === form.startDate ? 'font-medium text-brand-dark' : 'text-ink-600'
+                          }`}
+                          onClick={() => {
+                            updateForm({ startDate: date })
+                            setStartDateOpen(false)
+                          }}
+                        >
+                          {date}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </ProjectFormField>
+
+            <span className="hidden pb-3 text-center text-ink-400 sm:block">-</span>
+
+            <ProjectFormField label="End Date">
+              <div className="flex gap-2">
+                <select
+                  value={form.endTime}
+                  onChange={(event) => updateForm({ endTime: event.target.value })}
+                  className="h-12 min-w-0 flex-1 rounded-xl border border-ink-100 bg-white px-3 text-sm text-ink-700 outline-none focus:border-brand-dark"
+                >
+                  {timeOptions.map((time) => (
+                    <option key={time} value={time}>
+                      {time}
+                    </option>
+                  ))}
+                </select>
+                <div className="relative min-w-0 flex-[1.4]">
+                  <button
+                    type="button"
+                    className="flex h-12 w-full items-center justify-between rounded-xl border border-ink-100 px-3 text-sm text-ink-700 hover:bg-ink-50"
+                    onClick={() => {
+                      setEndDateOpen((open) => !open)
+                      setStartDateOpen(false)
+                    }}
+                  >
+                    <span className="truncate">{form.endDate}</span>
+                    <ChevronDown size={16} className="shrink-0 text-ink-400" />
+                  </button>
+                  {endDateOpen ? (
+                    <div className="absolute left-0 right-0 top-14 z-10 overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-card">
+                      {dateOptions.map((date) => (
+                        <button
+                          key={date}
+                          type="button"
+                          className={`block w-full px-4 py-2.5 text-left text-sm hover:bg-ink-50 ${
+                            date === form.endDate ? 'font-medium text-brand-dark' : 'text-ink-600'
+                          }`}
+                          onClick={() => {
+                            updateForm({ endDate: date })
+                            setEndDateOpen(false)
+                          }}
+                        >
+                          {date}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </ProjectFormField>
+          </div>
+
+          <ProjectFormField label="Members">
+            <div className="rounded-xl border border-ink-100 p-3">
+              <div className="flex flex-wrap gap-2">
+                {form.members.map((member) => (
+                  <span
+                    key={member}
+                    className="inline-flex items-center gap-2 rounded-lg bg-ink-50 px-2 py-1.5 text-sm text-ink-700"
+                  >
+                    <MemberAvatar name={member} size="xs" />
+                    {member}
+                    <button
+                      type="button"
+                      className="text-ink-400 hover:text-ink-700"
+                      onClick={() => removeMember(member)}
+                      aria-label={`Remove ${member}`}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <div className="relative mt-3">
+                <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+                <input
+                  value={memberQuery}
+                  onChange={(event) => setMemberQuery(event.target.value)}
+                  placeholder="Search members..."
+                  className="h-10 w-full rounded-lg border border-ink-100 bg-white pl-10 pr-4 text-sm text-ink-700 outline-none placeholder:text-ink-400 focus:border-brand-dark"
+                />
+              </div>
+              {memberQuery && filteredMemberOptions.length > 0 ? (
+                <ul className="mt-2 max-h-32 overflow-y-auto rounded-lg border border-ink-100">
+                  {filteredMemberOptions.map((member) => (
+                    <li key={member}>
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink-600 hover:bg-ink-50"
+                        onClick={() => addMember(member)}
+                      >
+                        <MemberAvatar name={member} size="xs" />
+                        {member}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </ProjectFormField>
+
+          <ProjectFormField label="Budget">
+            <div className="relative">
+              <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-ink-400">$</span>
+              <input
+                value={form.budget}
+                onChange={(event) => updateForm({ budget: event.target.value })}
+                className="h-12 w-full rounded-xl border border-ink-100 pl-8 pr-4 text-sm text-ink-700 outline-none focus:border-brand-dark"
+              />
+            </div>
+          </ProjectFormField>
+        </div>
+
+        <div className="flex justify-end border-t border-ink-100 px-6 py-5">
+          <button
+            type="button"
+            className="h-12 rounded-xl bg-brand-dark px-8 text-sm font-semibold text-white hover:bg-brand-green"
+            onClick={onSave}
+          >
+            {isEdit ? 'Save' : 'Create'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProjectFormField({ label, children }) {
+  return (
+    <label className="mb-5 block">
+      <span className="mb-2 block text-sm text-ink-400">{label}</span>
+      {children}
+    </label>
   )
 }
 
@@ -875,6 +1332,7 @@ function BrandLogo({ brand, size = 'md' }) {
   const sizes = {
     sm: 'h-9 w-9',
     md: 'h-11 w-11',
+    lg: 'h-20 w-20',
   }
 
   const logos = {

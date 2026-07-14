@@ -150,7 +150,7 @@ const extraBrands = ['dropbox', 'gitlab', 'bitbucket', 'python', 'slack', 'fireb
 
 function buildProjects() {
   const projects = [...featuredProjects]
-  const statusTargets = { Started: 128, 'On Hold': 15, Completed: 8 }
+  const statusTargets = { Started: 16, 'On Hold': 4, Completed: 4 }
   const currentCounts = {
     Started: featuredProjects.filter((project) => project.status === 'Started').length,
     'On Hold': featuredProjects.filter((project) => project.status === 'On Hold').length,

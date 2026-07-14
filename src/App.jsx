@@ -15,6 +15,7 @@ import ProjectDetailsPage from './pages/ProjectDetailsPage'
 import FileManager from './pages/FileManager'
 import Notes from './pages/Notes'
 import Contacts from './pages/Contacts'
+import Chat from './pages/Chat'
 import { navItems } from './navConfig'
 
 function isProjectDetailsPath(pathname) {
@@ -34,6 +35,10 @@ export default function App() {
 
   if (pathname === '/file-manager') {
     return <FileManager />
+  }
+
+  if (pathname === '/chat') {
+    return <Chat />
   }
 
   if (isProjectDetailsPath(pathname)) {
@@ -71,7 +76,7 @@ export default function App() {
           <Route path="/contacts" element={<Contacts />} />
           {navItems
             .flatMap((item) => item.children || [item])
-            .filter((item) => !['/', '/ecommerce', '/ecommerce/products', '/ecommerce/orders', '/ecommerce/customers', '/calendar', '/mail', '/task', '/projects', '/file-manager', '/notes', '/contacts'].includes(item.path))
+            .filter((item) => !['/', '/ecommerce', '/ecommerce/products', '/ecommerce/orders', '/ecommerce/customers', '/calendar', '/mail', '/chat', '/task', '/projects', '/file-manager', '/notes', '/contacts'].includes(item.path))
             .map(({ path, label, icon }) => (
               <Route
                 key={path}

@@ -186,6 +186,7 @@ export default function FileManager() {
   }
 
   const openUploadPanel = () => {
+    setUploads(uploadQueueSeed.map((item) => ({ ...item })))
     setUploadOpen(true)
   }
 
@@ -414,10 +415,14 @@ export default function FileManager() {
                     ))}
                     <button
                       type="button"
-                      className="flex min-h-[148px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink-200 text-ink-400 transition-colors hover:border-ink-300 hover:bg-ink-50 hover:text-ink-500"
+                      onClick={openUploadPanel}
+                      className="group flex min-h-[148px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-ink-200 bg-ink-50/50 transition-colors hover:border-ink-300 hover:bg-ink-50"
+                      aria-label="Add folder and upload files"
                     >
-                      <Plus size={28} strokeWidth={1.5} />
-                      <span className="mt-2 text-sm">Add Folder</span>
+                      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-ink-100 transition-transform group-hover:scale-105">
+                        <Plus size={22} className="text-ink-700" strokeWidth={1.75} />
+                      </span>
+                      <span className="mt-3 text-sm text-ink-400 group-hover:text-ink-500">Add Folder</span>
                     </button>
                   </div>
                 </section>

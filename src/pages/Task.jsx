@@ -337,7 +337,15 @@ const statusOptions = [
   { id: 'completed', label: 'Completed' },
 ]
 
-const defaultFilters = {
+const emptyFilters = {
+  search: '',
+  labels: [],
+  members: [],
+  dueDate: 'anytime',
+  status: 'any',
+}
+
+const filterPanelDefaults = {
   search: '',
   labels: ['frontend'],
   members: ['Shane Black'],
@@ -396,8 +404,8 @@ export default function Task() {
   const [projectQuery, setProjectQuery] = useState('')
   const [addOpen, setAddOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
-  const [appliedFilters, setAppliedFilters] = useState(defaultFilters)
-  const [draftFilters, setDraftFilters] = useState(defaultFilters)
+  const [appliedFilters, setAppliedFilters] = useState(emptyFilters)
+  const [draftFilters, setDraftFilters] = useState(filterPanelDefaults)
   const [tasks, setTasks] = useState(initialTasks)
   const [columnAccents, setColumnAccents] = useState(defaultColumnAccents)
   const [openColumnMenu, setOpenColumnMenu] = useState(null)
@@ -553,7 +561,7 @@ export default function Task() {
   }
 
   const openFilterPanel = () => {
-    setDraftFilters(appliedFilters)
+    setDraftFilters(filterPanelDefaults)
     setFilterOpen(true)
     setProjectOpen(false)
     setAddOpen(false)
@@ -565,8 +573,9 @@ export default function Task() {
   }
 
   const resetFilters = () => {
-    setDraftFilters(defaultFilters)
-    setAppliedFilters(defaultFilters)
+    setDraftFilters(emptyFilters)
+    setAppliedFilters(emptyFilters)
+    setFilterOpen(false)
   }
 
   return (

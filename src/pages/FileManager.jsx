@@ -5,7 +5,6 @@ import {
   Bell,
   ChevronDown,
   ChevronRight,
-  CloudUpload,
   Copy,
   Download,
   Flower2,
@@ -96,14 +95,14 @@ const itemDetails = {
 }
 
 const uploadQueueSeed = [
-  { id: 'up-1', name: 'Rocket - Admin Dashboard UI8', size: '2.4 MB', type: 'figma', progress: 100, status: 'done' },
-  { id: 'up-2', name: 'Project Brief.docx', size: '1.2 MB', type: 'word', progress: 100, status: 'done' },
-  { id: 'up-3', name: 'Brand Styles Guide.pdf', size: '1.4 MB', type: 'pdf', progress: 100, status: 'done' },
+  { id: 'up-1', name: 'Rocket - Admin Dashboard UI8', size: '1.8 MB', type: 'figma', progress: 100, status: 'done' },
+  { id: 'up-2', name: 'Rocket - Admin Dashboard UI8', size: '1.8 MB', type: 'sketch', progress: 100, status: 'done' },
+  { id: 'up-3', name: 'Project Brief.docx', size: '1.2 MB', type: 'word', progress: 0, status: 'failed' },
   { id: 'up-4', name: 'Attachment.zip', size: '8.4 MB', type: 'zip', progress: 95, status: 'uploading' },
-  { id: 'up-5', name: 'Design.ai', size: '4.5 MB', type: 'illustrator', progress: 75, status: 'uploading' },
-  { id: 'up-6', name: 'vCard - Resume.psd', size: '3.2 MB', type: 'photoshop', progress: 50, status: 'uploading' },
-  { id: 'up-7', name: 'Project Brief.docx', size: '1.2 MB', type: 'word', progress: 0, status: 'failed' },
-  { id: 'up-8', name: 'Arion - Admin Dashboard UI8', size: '2.1 MB', type: 'sketch', progress: 100, status: 'done' },
+  { id: 'up-5', name: 'vCard - Resume.psd', size: '3.2 MB', type: 'photoshop', progress: 75, status: 'uploading' },
+  { id: 'up-6', name: 'Brand Styles Guide.pdf', size: '1.4 MB', type: 'pdf', progress: 50, status: 'uploading' },
+  { id: 'up-7', name: 'Arion - Admin Dashboard UI8', size: '2.1 MB', type: 'sketch', progress: 100, status: 'done' },
+  { id: 'up-8', name: 'Design.ai', size: '4.5 MB', type: 'illustrator', progress: 100, status: 'done' },
 ]
 
 const listRows = [
@@ -182,11 +181,32 @@ export default function FileManager() {
 
   const retryUpload = (uploadId) => {
     setUploads((current) =>
-      current.map((item) => (item.id === uploadId ? { ...item, status: 'uploading', progress: 10 } : item)),
+      current.map((item) => (item.id === uploadId ? { ...item, status: 'uploading', progress: 12 } : item)),
     )
   }
 
-  const overallUploadProgress = Math.round(uploads.reduce((sum, item) => sum + item.progress, 0) / uploads.length)
+  const openUploadPanel = () => {
+    setUploadOpen(true)
+  }
+
+  useEffect(() => {
+    if (!uploadOpen) return undefined
+
+    const interval = window.setInterval(() => {
+      setUploads((current) =>
+        current.map((item) => {
+          if (item.status !== 'uploading') return item
+          const nextProgress = Math.min(item.progress + 1, 100)
+          if (nextProgress >= 100) {
+            return { ...item, progress: 100, status: 'done' }
+          }
+          return { ...item, progress: nextProgress }
+        }),
+      )
+    }, 600)
+
+    return () => window.clearInterval(interval)
+  }, [uploadOpen])
 
   return (
     <div className="flex h-screen overflow-hidden bg-white text-ink-900">
@@ -364,7 +384,7 @@ export default function FileManager() {
                 <button
                   type="button"
                   className="inline-flex items-center gap-2 rounded-xl bg-brand-dark px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-green"
-                  onClick={() => setUploadOpen(true)}
+                  onClick={openUploadPanel}
                 >
                   <ArrowUpFromLine size={16} />
                   Upload
@@ -565,47 +585,125 @@ export default function FileManager() {
       ) : null}
 
       {uploadOpen ? (
-        <div className="fixed bottom-4 right-4 z-50 w-[min(100vw-2rem,360px)] overflow-hidden rounded-xl2 border border-ink-100 bg-white shadow-2xl">
-          <div className="border-t-4 border-brand-green bg-ink-800 px-4 py-3 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">Uploading {uploads.length} files</p>
-                <p className="text-xs text-ink-300">
-                  {overallUploadProgress}% • 2 minutes left
-                </p>
-              </div>
-              <button type="button" className="rounded p-1 text-ink-300 hover:text-white" onClick={() => setUploadOpen(false)} aria-label="Close uploads">
-                <MoreVertical size={16} />
-              </button>
-            </div>
-          </div>
-          <ul className="max-h-72 overflow-y-auto p-2">
-            {uploads.map((item) => (
-              <li key={item.id} className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-ink-50">
-                <FileTypeIcon type={item.type} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-ink-800">{item.name}</p>
-                  <p className="text-xs text-ink-400">{item.size}</p>
-                  {item.status === 'uploading' ? (
-                    <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-ink-100">
-                      <div className="h-full rounded-full bg-brand-green transition-all" style={{ width: `${item.progress}%` }} />
-                    </div>
-                  ) : null}
-                  {item.status === 'failed' ? <p className="mt-1 text-xs text-red-500">Upload Failed</p> : null}
-                </div>
-                {item.status === 'done' ? <CheckBadge /> : null}
-                {item.status === 'failed' ? (
-                  <button type="button" className="rounded-full p-1.5 text-ink-400 hover:bg-ink-100 hover:text-brand-dark" onClick={() => retryUpload(item.id)} aria-label="Retry upload">
-                    <RefreshCw size={14} />
-                  </button>
-                ) : null}
-                {item.status === 'uploading' ? <span className="text-xs font-medium text-brand-dark">{item.progress}%</span> : null}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <UploadPanel uploads={uploads} onClose={() => setUploadOpen(false)} onRetry={retryUpload} />
       ) : null}
     </div>
+  )
+}
+
+function UploadPanel({ uploads, onClose, onRetry }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  const overallProgress = Math.round(uploads.reduce((sum, item) => sum + item.progress, 0) / uploads.length)
+  const uploadingCount = uploads.filter((item) => item.status === 'uploading').length
+  const timeLeft = uploadingCount > 0 ? '2 minutes left' : 'Complete'
+
+  useEffect(() => {
+    if (!menuOpen) return undefined
+    const handleClick = (event) => {
+      if (!menuRef.current?.contains(event.target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [menuOpen])
+
+  return (
+    <div className="fixed bottom-0 right-0 z-50 w-full sm:bottom-4 sm:right-4 sm:w-[min(100vw-2rem,380px)]">
+      <div className="overflow-hidden rounded-t-2xl border border-ink-100 bg-white shadow-2xl sm:rounded-2xl">
+        <div className="border-b border-ink-100 px-4 py-4 sm:px-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-ink-900">Uploading {uploads.length} files</p>
+              <p className="mt-1 text-xs text-ink-500">
+                <span className="font-semibold text-brand-dark">{overallProgress}%</span>
+                <span className="mx-1.5 text-ink-300">•</span>
+                {timeLeft}
+              </p>
+            </div>
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                className="rounded-lg p-1.5 text-ink-400 hover:bg-ink-50 hover:text-ink-700"
+                onClick={() => setMenuOpen((open) => !open)}
+                aria-label="Upload options"
+              >
+                <MoreVertical size={18} />
+              </button>
+              {menuOpen ? (
+                <div className="absolute right-0 top-9 z-10 min-w-[140px] overflow-hidden rounded-xl border border-ink-100 bg-white py-1 shadow-xl">
+                  <button
+                    type="button"
+                    className="block w-full px-4 py-2.5 text-left text-sm text-ink-600 hover:bg-ink-50"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      onClose()
+                    }}
+                  >
+                    Close panel
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <ul className="max-h-[min(320px,50vh)] overflow-y-auto px-2 py-2 sm:px-3">
+          {uploads.map((item) => (
+            <UploadRow key={item.id} item={item} onRetry={onRetry} />
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+function UploadRow({ item, onRetry }) {
+  const isUploading = item.status === 'uploading'
+  const isFailed = item.status === 'failed'
+  const isDone = item.status === 'done'
+
+  return (
+    <li className="relative mb-1 overflow-hidden rounded-xl last:mb-0">
+      {isUploading ? (
+        <div
+          className="absolute inset-y-0 left-0 bg-brand-green/10 transition-[width] duration-500 ease-out"
+          style={{ width: `${item.progress}%` }}
+        />
+      ) : null}
+
+      <div className="relative flex items-center gap-3 px-2 py-3 sm:px-3">
+        <FileTypeIcon type={item.type} size="sm" className="shrink-0" />
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-ink-800">{item.name}</p>
+          {isFailed ? (
+            <p className="mt-0.5 text-xs font-medium text-red-500">Upload Failed</p>
+          ) : (
+            <p className="mt-0.5 text-xs text-ink-400">{item.size}</p>
+          )}
+        </div>
+
+        {isDone ? <CheckBadge /> : null}
+
+        {isFailed ? (
+          <button
+            type="button"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-ink-200 text-ink-400 transition-colors hover:border-ink-300 hover:bg-ink-50 hover:text-brand-dark"
+            onClick={() => onRetry(item.id)}
+            aria-label={`Retry upload for ${item.name}`}
+          >
+            <RefreshCw size={14} />
+          </button>
+        ) : null}
+
+        {isUploading ? (
+          <span className="shrink-0 text-xs font-semibold text-brand-dark">{item.progress}%</span>
+        ) : null}
+      </div>
+    </li>
   )
 }
 
@@ -687,7 +785,7 @@ function FileTypeIcon({ type, size = 'md', className = '' }) {
       </svg>
     ),
     word: (
-      <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#2B579A] text-lg font-bold text-white shadow-sm">W</div>
+      <div className="flex h-full w-full items-center justify-center rounded-xl bg-[#185C37] text-lg font-bold text-white shadow-sm">W</div>
     ),
     zip: (
       <div className="flex h-full w-full flex-col items-center justify-center rounded-xl bg-ink-100 text-ink-500">

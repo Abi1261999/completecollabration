@@ -6,11 +6,12 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Download,
   MoreVertical,
   Search,
   SlidersHorizontal,
 } from 'lucide-react'
+import ExportDropdown from '../components/ExportDropdown'
+import OrderDetailModal from '../components/OrderDetailModal'
 
 const seedOrders = [
   { id: 1, orderNo: '#790841', customer: 'Claire Warren', date: '12.09.20', total: 145.85, payment: 'PayPal', status: 'Shipped' },
@@ -96,6 +97,7 @@ export default function EcommerceOrders() {
     minTotal: 0,
     maxTotal: 1200,
   })
+  const [selectedOrder, setSelectedOrder] = useState(null)
 
   const tabCounts = useMemo(() => {
     return {
@@ -180,11 +182,7 @@ export default function EcommerceOrders() {
           <OrderTabs activeTab={activeTab} tabCounts={tabCounts} onTabChange={handleTabChange} />
         </div>
 
-        <button className="flex w-fit items-center gap-2 rounded-xl border border-ink-100 bg-white px-4 py-2 text-sm text-ink-500 shadow-card hover:bg-ink-50">
-          <Download size={16} />
-          Export
-          <ChevronDown size={14} />
-        </button>
+        <ExportDropdown />
       </div>
 
       <OrdersTable
@@ -205,7 +203,10 @@ export default function EcommerceOrders() {
         onSelectionChange={setSelectedIds}
         onSort={handleSort}
         onApplyFilters={setAppliedFilters}
+        onOrderClick={setSelectedOrder}
       />
+
+      {selectedOrder ? <OrderDetailModal order={selectedOrder} onClose={() => setSelectedOrder(null)} /> : null}
     </div>
   )
 }
@@ -248,6 +249,7 @@ function OrdersTable({
   onSelectionChange,
   onSort,
   onApplyFilters,
+  onOrderClick,
 }) {
   const [filterOpen, setFilterOpen] = useState(false)
   const [draftFilters, setDraftFilters] = useState(appliedFilters)
@@ -368,8 +370,12 @@ function OrdersTable({
           <tbody>
             {visibleOrders.length > 0 ? (
               visibleOrders.map((order) => (
-                <tr key={order.id} className="border-b border-ink-100 text-ink-500 last:border-b-0">
-                  <td className="px-2 py-4">
+                <tr
+                  key={order.id}
+                  className="cursor-pointer border-b border-ink-100 text-ink-500 last:border-b-0 hover:bg-ink-50/60"
+                  onClick={() => onOrderClick(order)}
+                >
+                  <td className="px-2 py-4" onClick={(event) => event.stopPropagation()}>
                     <Checkbox
                       checked={selectedIds.includes(order.id)}
                       onChange={() => toggleOrder(order.id)}
@@ -384,7 +390,7 @@ function OrdersTable({
                   <td className="px-3 py-4">
                     <StatusBadge status={order.status} />
                   </td>
-                  <td className="px-2 py-4 text-right text-ink-400">
+                  <td className="px-2 py-4 text-right text-ink-400" onClick={(event) => event.stopPropagation()}>
                     <button className="hover:text-ink-700" aria-label={`More actions for ${order.orderNo}`}>
                       <MoreVertical size={18} />
                     </button>

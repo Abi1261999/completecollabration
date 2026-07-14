@@ -83,6 +83,8 @@ const filterPanelDefaults = {
   status: 'Completed',
 }
 
+const TEAM_MEMBERS = ['Shane Black', 'Jane Wilson', 'Regina Cooper', 'Ronald Robertson', 'Judith Black', 'Calvin Flores']
+
 function assignMembers(teamSize, seed = 0) {
   return Array.from({ length: teamSize }, (_, index) => TEAM_MEMBERS[(seed + index) % TEAM_MEMBERS.length])
 }

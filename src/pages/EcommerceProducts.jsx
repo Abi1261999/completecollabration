@@ -15,6 +15,7 @@ import {
   Search,
   SlidersHorizontal,
 } from 'lucide-react'
+import ProductFormModal from '../components/ProductFormModal'
 
 const products = [
   { id: 1, name: 'MacBook Pro 15 Retina Touch Bar MV902', number: '#790841', category: 'Notebook', date: '12.09.20', price: '$2.500', status: 'Available' },
@@ -42,6 +43,7 @@ export default function EcommerceProducts() {
   const [query, setQuery] = useState('')
   const [page, setPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState([])
+  const [productModalOpen, setProductModalOpen] = useState(false)
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -61,6 +63,17 @@ export default function EcommerceProducts() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <button className="flex items-center gap-2 rounded-xl border border-ink-100 bg-white px-4 py-2 text-sm text-ink-500 shadow-card hover:bg-ink-50">
+            <Download size={16} />
+            Export
+            <ChevronDown size={14} />
+          </button>
+          <button
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark text-white shadow-card hover:bg-brand-green"
+            aria-label="Add product"
+            onClick={() => setProductModalOpen(true)}
+          >
           <ExportDropdown />
           <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-dark text-white shadow-card hover:bg-brand-green" aria-label="Add product">
             <Plus size={18} />
@@ -85,6 +98,10 @@ export default function EcommerceProducts() {
         onPageChange={setPage}
         onSelectionChange={setSelectedIds}
       />
+
+      {productModalOpen ? (
+        <ProductFormModal onClose={() => setProductModalOpen(false)} onSave={() => setProductModalOpen(false)} />
+      ) : null}
     </div>
   )
 }

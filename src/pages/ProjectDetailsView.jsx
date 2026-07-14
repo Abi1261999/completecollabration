@@ -172,9 +172,9 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
   const selectedStatus = detailStatusOptions.find((option) => option.id === selectedProject.status) || detailStatusOptions[0]
 
   return (
-    <div className="flex min-h-[calc(100vh-8rem)] flex-col rounded-xl2 border border-ink-100 bg-white shadow-card lg:min-h-[calc(100vh-10rem)] lg:flex-row">
-      <aside className="w-full shrink-0 border-b border-ink-100 lg:w-72 lg:border-b-0 lg:border-r xl:w-80">
-        <div className="border-b border-ink-100 p-4">
+    <div className="flex h-full min-h-0 flex-col bg-white lg:flex-row">
+      <aside className="flex w-full shrink-0 flex-col border-b border-ink-100 lg:h-full lg:w-72 lg:border-b-0 lg:border-r xl:w-80">
+        <div className="shrink-0 border-b border-ink-100 p-4">
           <button
             type="button"
             className="mb-4 text-sm font-medium text-brand-dark hover:text-brand-green"
@@ -192,7 +192,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
             />
           </div>
         </div>
-        <ul className="max-h-64 overflow-y-auto p-3 lg:max-h-[calc(100vh-14rem)]">
+        <ul className="min-h-0 flex-1 overflow-y-auto p-3 lg:max-h-none">
           {sidebarProjects.map((project) => {
             const isActive = project.id === selectedProject.id
             return (
@@ -226,7 +226,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
         </ul>
       </aside>
 
-      <main className="min-w-0 flex-1 overflow-y-auto p-5 md:p-6 lg:max-h-[calc(100vh-10rem)]">
+      <main className="min-h-0 min-w-0 flex-1 overflow-y-auto p-5 md:p-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-4">
             <BrandLogo brand={selectedProject.brand} size="md" />
@@ -397,7 +397,7 @@ export default function ProjectDetailsView({ projects, selectedProject, onSelect
         </div>
       </main>
 
-      <aside className="w-full shrink-0 border-t border-ink-100 p-5 md:p-6 lg:w-72 lg:border-l lg:border-t-0 xl:w-80">
+      <aside className="w-full shrink-0 overflow-y-auto border-t border-ink-100 p-5 md:p-6 lg:h-full lg:w-72 lg:border-l lg:border-t-0 xl:w-80">
         <div className="relative">
           <button
             type="button"

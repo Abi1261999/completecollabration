@@ -11,7 +11,12 @@ import Calendar from './pages/Calendar'
 import Mail from './pages/Mail'
 import Task from './pages/Task'
 import Projects from './pages/Projects'
+import ProjectDetailsPage from './pages/ProjectDetailsPage'
 import { navItems } from './navConfig'
+
+function isProjectDetailsPath(pathname) {
+  return /^\/projects\/\d+$/.test(pathname)
+}
 
 export default function App() {
   const { pathname } = useLocation()
@@ -22,6 +27,21 @@ export default function App() {
 
   if (pathname === '/mail') {
     return <Mail />
+  }
+
+  if (isProjectDetailsPath(pathname)) {
+    return (
+      <div className="flex h-screen overflow-hidden bg-ink-50">
+        <div className="flex min-h-0 flex-1 flex-col">
+          <Topbar />
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <Routes>
+              <Route path="/projects/:projectId" element={<ProjectDetailsPage />} />
+            </Routes>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

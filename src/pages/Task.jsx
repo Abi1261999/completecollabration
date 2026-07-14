@@ -62,6 +62,16 @@ const columns = [
 const initialTasks = {
   todo: [
     {
+      id: 'todo-1',
+      title: 'Brand Logo Design',
+      description: 'Make a redesign of the logo in corporate colors.',
+      date: 'Jun 17',
+      attachments: 2,
+      comments: 5,
+      assignees: ['Regina Cooper', 'Judith Black'],
+      statusBar: ['bg-brand-dark', 'bg-brand-dark'],
+    },
+    {
       id: 'todo-2',
       title: 'New Header Image',
       description: '',
@@ -112,6 +122,26 @@ const initialTasks = {
       assignees: ['Jane Wilson'],
       statusBar: ['bg-teal-400'],
     },
+    {
+      id: 'todo-7',
+      title: 'Mobile Navigation',
+      description: 'Design collapsed navigation for smaller breakpoints.',
+      date: 'Jun 15',
+      attachments: 2,
+      comments: 1,
+      assignees: ['Ronald Robertson'],
+      statusBar: ['bg-indigo-400'],
+    },
+    {
+      id: 'todo-8',
+      title: 'Footer Redesign',
+      description: 'Update footer links and newsletter signup block.',
+      date: 'Jun 14',
+      attachments: 0,
+      comments: 2,
+      assignees: ['Calvin Flores'],
+      statusBar: ['bg-pink-400'],
+    },
   ],
   inProgress: [
     {
@@ -124,7 +154,7 @@ const initialTasks = {
       assignees: ['Calvin Flores', 'Robert Edwards'],
       progress: 50,
       subtaskCount: 4,
-      statusBar: ['bg-sky-400'],
+      statusBar: ['bg-brand-dark', 'bg-brand-dark'],
     },
     {
       id: 'progress-2',
@@ -191,7 +221,7 @@ const initialTasks = {
       comments: 2,
       assignees: ['Brandon Pena', 'Regina Cooper'],
       gallery: ['sunset', 'coast', 'city'],
-      statusBar: ['bg-brand-dark'],
+      statusBar: ['bg-brand-dark', 'bg-brand-dark'],
     },
     {
       id: 'done-2',
@@ -741,6 +771,14 @@ function TaskCard({ task, onDragStart, onDragEnd, onToggleSubtask }) {
         </div>
       ) : null}
 
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <h3 className="font-semibold text-ink-900">{task.title}</h3>
+        <span className="flex shrink-0 items-center gap-1 text-xs text-ink-400">
+          <CalendarDays size={12} />
+          {task.date}
+        </span>
+      </div>
+
       {task.coverImage ? (
         <div className={`mb-3 h-32 overflow-hidden rounded-lg ${imageStyles[task.coverImage]}`} />
       ) : null}
@@ -752,14 +790,6 @@ function TaskCard({ task, onDragStart, onDragEnd, onToggleSubtask }) {
           ))}
         </div>
       ) : null}
-
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-ink-900">{task.title}</h3>
-        <span className="flex shrink-0 items-center gap-1 text-xs text-ink-400">
-          <CalendarDays size={12} />
-          {task.date}
-        </span>
-      </div>
 
       {task.description ? <p className="mb-3 text-sm leading-6 text-ink-500">{task.description}</p> : null}
 

@@ -143,7 +143,7 @@ export default function Contacts() {
       <div className="flex min-h-full flex-col xl:flex-row">
         <div className="min-w-0 flex-1 p-4 md:p-6 lg:p-8">
           <header className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <h1 className="text-2xl font-semibold text-ink-900 md:text-3xl">Contacts</h1>
+            <h1 className="text-page-title text-ink-900 md:text-[1.875rem]">Contacts</h1>
             <button
               type="button"
               className="inline-flex items-center justify-center gap-2 self-start rounded-xl bg-brand-dark px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-green lg:self-auto"

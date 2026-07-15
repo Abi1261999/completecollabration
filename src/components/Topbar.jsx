@@ -81,7 +81,7 @@ export default function Topbar() {
             aria-label="Open user menu"
           >
             <Avatar name="ArtTemplate" size="sm" />
-            <span className="hidden sm:block text-sm font-medium">ArtTemplate</span>
+            <span className="hidden text-body font-medium sm:block">ArtTemplate</span>
             <ChevronDown size={14} className="hidden sm:block text-ink-500" />
           </button>
           {userMenuOpen ? (
@@ -97,8 +97,8 @@ function NotificationsPopover({ onClose }) {
   return (
     <div className="fixed right-4 top-[15px] z-30 h-[min(478px,calc(100vh-30px))] w-[calc(100vw-2rem)] max-w-[340px] rounded-xl2 bg-white shadow-2xl ring-1 ring-ink-100 md:right-[190px]">
       <div className="flex items-center justify-between border-b border-ink-100 px-6 py-5">
-        <h2 className="text-lg font-semibold text-ink-700">Notifications</h2>
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-xs font-semibold text-white">
+        <h2 className="text-lg font-semibold tracking-tight text-ink-700">Notifications</h2>
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-caption font-semibold text-white">
           8
         </span>
       </div>
@@ -118,8 +118,8 @@ function NotificationsPopover({ onClose }) {
               ) : null}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-ink-700">{notification.name}</p>
-              <p className="text-xs text-ink-400">{notification.time}</p>
+              <p className="truncate text-body font-medium text-ink-700">{notification.name}</p>
+              <p className="text-caption text-ink-500">{notification.time}</p>
             </div>
             {notification.active ? (
               <button
@@ -146,12 +146,12 @@ function UserMenuPopover() {
           <Avatar name="ArtTemplate" size="lg" />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="truncate text-sm font-semibold text-ink-900">ArtTemplate</p>
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-[10px] font-semibold text-white">
+              <p className="truncate text-card-title text-ink-900">ArtTemplate</p>
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-danger px-1.5 text-caption font-semibold text-white">
                 8
               </span>
             </div>
-            <p className="text-xs text-ink-400">Manager</p>
+            <p className="text-caption text-ink-500">Manager</p>
           </div>
         </NavLink>
       </div>
@@ -160,7 +160,7 @@ function UserMenuPopover() {
         {userMenuItems.map(({ label, icon: Icon }) => (
           <button
             key={label}
-            className="flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-sm text-ink-500 hover:bg-ink-50 hover:text-ink-900"
+            className="flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-body text-ink-500 hover:bg-ink-50 hover:text-ink-900"
           >
             <Icon size={17} />
             {label}
@@ -172,7 +172,7 @@ function UserMenuPopover() {
         {accountMenuItems.map(({ label, icon: Icon, active, separated }) => (
           <button
             key={label}
-            className={`flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-sm ${
+            className={`flex w-full items-center gap-4 rounded-xl px-3 py-2.5 text-body ${
               separated ? 'mt-4 border-t border-ink-100 pt-4' : ''
             } ${active ? 'bg-ink-50 text-ink-700' : 'text-ink-500 hover:bg-ink-50 hover:text-ink-900'}`}
           >
@@ -193,7 +193,7 @@ function Avatar({ name, size = 'md' }) {
   }
 
   return (
-    <div className={`flex ${sizes[size]} items-center justify-center rounded-full bg-gradient-to-br from-[#E98B70] to-[#C65E43] text-xs font-semibold text-white`}>
+    <div className={`flex ${sizes[size]} items-center justify-center rounded-full bg-gradient-to-br from-[#E98B70] to-[#C65E43] text-caption font-semibold text-white`}>
       {name
         .split(' ')
         .map((part) => part[0])

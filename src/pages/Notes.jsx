@@ -108,7 +108,7 @@ export default function Notes() {
     <div className="min-h-full bg-ink-50 p-4 md:p-6 lg:p-8">
       <div className="mx-auto max-w-[1400px]">
         <header className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-2xl font-semibold text-ink-900 md:text-3xl">Notes</h1>
+          <h1 className="text-page-title text-ink-900 md:text-[1.875rem]">Notes</h1>
           <div className="flex items-center gap-3">
             <div className="relative">
               <button

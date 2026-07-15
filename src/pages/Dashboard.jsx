@@ -52,7 +52,7 @@ const transactions = [
 
 function DateRangePill() {
   return (
-    <button className="flex items-center gap-2 text-sm text-ink-500 border border-ink-100 rounded-lg px-3 py-1.5 hover:bg-ink-50">
+    <button className="flex items-center gap-2 rounded-lg border border-ink-100 px-3 py-1.5 text-body text-ink-500 hover:bg-ink-50">
       19 Aug – 25 Aug
       <ChevronDown size={14} />
     </button>
@@ -63,7 +63,7 @@ function Panel({ title, right, children }) {
   return (
     <div className="bg-white rounded-xl2 border border-ink-100 shadow-card p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-medium text-ink-900">{title}</h3>
+        <h3 className="text-card-title text-ink-900">{title}</h3>
         {right}
       </div>
       {children}
@@ -75,7 +75,7 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-ink-900">Overview</h1>
+        <h1 className="text-page-title text-ink-900 md:text-[1.875rem]">Overview</h1>
         <div className="flex items-center gap-3">
           <button className="p-2 rounded-lg border border-ink-100 text-ink-500 hover:bg-ink-50">
             <Download size={16} />
@@ -104,7 +104,7 @@ export default function Dashboard() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex items-center gap-4 mt-2 text-xs text-ink-500">
+          <div className="mt-2 flex items-center gap-4 text-caption text-ink-500">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-dark inline-block" /> Income</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-brand-teal inline-block" /> Expense</span>
           </div>
@@ -112,8 +112,8 @@ export default function Dashboard() {
 
         <Panel title="Analytics" right={<DateRangePill />}>
           <div className="flex items-center gap-3 mb-2">
-            <div className="bg-brand-green/15 text-brand-dark text-sm font-medium rounded-lg px-3 py-1.5">$5.850</div>
-            <div className="bg-ink-50 text-ink-500 text-sm font-medium rounded-lg px-3 py-1.5">$1.750</div>
+            <div className="rounded-lg bg-brand-green/15 px-3 py-1.5 text-body font-medium text-brand-dark">$5.850</div>
+            <div className="rounded-lg bg-ink-50 px-3 py-1.5 text-body font-medium text-ink-500">$1.750</div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
@@ -154,20 +154,20 @@ export default function Dashboard() {
               </RadialBarChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-semibold text-ink-900">3.500</span>
-              <span className="text-xs text-ink-400">Total</span>
+              <span className="text-xl font-semibold tracking-tight text-ink-900">3.500</span>
+              <span className="text-caption text-ink-500">Total</span>
             </div>
           </div>
           <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2 text-ink-500"><span className="w-2 h-2 rounded-full bg-brand-dark inline-block" /> Current Week</span>
-              <span className="text-ink-900 font-medium">2.500</span>
-              <span className="text-brand-dark text-xs font-medium flex items-center gap-1"><ArrowUpMini /> 8.8%</span>
+            <div className="flex items-center justify-between text-body">
+              <span className="flex items-center gap-2 text-ink-500"><span className="inline-block h-2 w-2 rounded-full bg-brand-dark" /> Current Week</span>
+              <span className="font-medium text-ink-900">2.500</span>
+              <span className="flex items-center gap-1 text-caption font-medium text-brand-dark"><ArrowUpMini /> 8.8%</span>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="flex items-center gap-2 text-ink-500"><span className="w-2 h-2 rounded-full bg-brand-teal inline-block" /> Last Week</span>
-              <span className="text-ink-900 font-medium">1.000</span>
-              <span className="text-danger text-xs font-medium flex items-center gap-1"><ArrowDownMini /> 5.8%</span>
+            <div className="flex items-center justify-between text-body">
+              <span className="flex items-center gap-2 text-ink-500"><span className="inline-block h-2 w-2 rounded-full bg-brand-teal" /> Last Week</span>
+              <span className="font-medium text-ink-900">1.000</span>
+              <span className="flex items-center gap-1 text-caption font-medium text-danger"><ArrowDownMini /> 5.8%</span>
             </div>
           </div>
         </Panel>
@@ -176,8 +176,8 @@ export default function Dashboard() {
           title="Statistics"
           right={
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1 text-xs text-ink-500"><span className="w-2 h-2 rounded-full bg-brand-dark inline-block" /> Income</span>
-              <span className="flex items-center gap-1 text-xs text-ink-500"><span className="w-2 h-2 rounded-full bg-brand-teal inline-block" /> Expense</span>
+              <span className="flex items-center gap-1 text-caption text-ink-500"><span className="inline-block h-2 w-2 rounded-full bg-brand-dark" /> Income</span>
+              <span className="flex items-center gap-1 text-caption text-ink-500"><span className="inline-block h-2 w-2 rounded-full bg-brand-teal" /> Expense</span>
               <DateRangePill />
             </div>
           }
@@ -200,9 +200,9 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-5">
         <Panel title="Last Orders" right={<DateRangePill />}>
           <div className="overflow-x-auto -mx-5">
-            <table className="w-full text-sm">
+            <table className="w-full text-body">
               <thead>
-                <tr className="text-left text-ink-400 border-b border-ink-100">
+                <tr className="border-b border-ink-100 text-left text-section-title uppercase text-ink-500">
                   <th className="font-normal py-2 px-5">Customer Name</th>
                   <th className="font-normal py-2 px-5">Order No.</th>
                   <th className="font-normal py-2 px-5">Amount</th>
@@ -215,7 +215,7 @@ export default function Dashboard() {
                 {orders.map((o) => (
                   <tr key={o.order} className="border-b border-ink-100 last:border-0">
                     <td className="py-3 px-5 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-ink-100 flex items-center justify-center text-xs font-medium text-ink-500">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-ink-100 text-caption font-medium text-ink-500">
                         {o.name.split(' ').map((n) => n[0]).join('')}
                       </div>
                       {o.name}
@@ -237,17 +237,17 @@ export default function Dashboard() {
             {transactions.map((t) => (
               <li key={t.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-ink-100 flex items-center justify-center text-xs font-medium text-ink-500">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-100 text-caption font-medium text-ink-500">
                     {t.name.split(' ').map((n) => n[0]).join('')}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-ink-900">{t.name}</p>
-                    <p className="text-xs text-ink-400">{t.time}</p>
+                    <p className="text-card-title text-ink-900">{t.name}</p>
+                    <p className="text-caption text-ink-500">{t.time}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`text-sm font-medium ${t.positive ? 'text-brand-dark' : 'text-danger'}`}>{t.amount}</p>
-                  <p className="text-xs text-ink-400">{t.type}</p>
+                  <p className={`text-body font-medium ${t.positive ? 'text-brand-dark' : 'text-danger'}`}>{t.amount}</p>
+                  <p className="text-caption text-ink-500">{t.type}</p>
                 </div>
               </li>
             ))}

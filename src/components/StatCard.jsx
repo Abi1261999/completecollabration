@@ -4,11 +4,11 @@ export default function StatCard({ label, value, delta, positive, icon: Icon }) 
   return (
     <div className="bg-white rounded-xl2 border border-ink-100 shadow-card p-5 flex items-center justify-between">
       <div>
-        <p className="text-sm text-ink-500 mb-2">{label}</p>
+        <p className="mb-2 text-body text-ink-500">{label}</p>
         <div className="flex items-center gap-2">
-          <span className="text-2xl font-semibold text-ink-900">{value}</span>
+          <span className="text-page-title text-ink-900">{value}</span>
           <span
-            className={`flex items-center text-xs font-medium ${
+            className={`flex items-center text-caption font-medium ${
               positive ? 'text-brand-dark' : 'text-danger'
             }`}
           >

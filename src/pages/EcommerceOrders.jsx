@@ -178,7 +178,7 @@ export default function EcommerceOrders() {
     <div className="p-4 md:p-8">
       <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-ink-900">Orders</h1>
+          <h1 className="text-page-title text-ink-900 md:text-[1.875rem]">Orders</h1>
           <OrderTabs activeTab={activeTab} tabCounts={tabCounts} onTabChange={handleTabChange} />
         </div>
 
@@ -213,7 +213,7 @@ export default function EcommerceOrders() {
 
 function OrderTabs({ activeTab, tabCounts, onTabChange }) {
   return (
-    <div className="mt-7 flex h-auto w-full flex-wrap items-center gap-7 border-b border-ink-100 text-sm md:h-10">
+    <div className="mt-6 flex h-auto w-full flex-wrap items-center gap-7 border-b border-ink-100 text-body md:h-10">
       {orderTabs.map((tab) => (
         <button
           key={tab.value}
@@ -223,7 +223,7 @@ function OrderTabs({ activeTab, tabCounts, onTabChange }) {
           onClick={() => onTabChange(tab.value)}
         >
           {tab.label}
-          <span className="rounded-md bg-ink-100 px-1.5 py-0.5 text-[10px] text-ink-400">{tabCounts[tab.value]}</span>
+          <span className="rounded-md bg-ink-100 px-1.5 py-0.5 text-caption font-medium text-ink-500">{tabCounts[tab.value]}</span>
           {activeTab === tab.value ? <span className="absolute bottom-[-1px] left-0 h-0.5 w-full rounded-full bg-brand-dark" /> : null}
         </button>
       ))}
@@ -300,7 +300,7 @@ function OrdersTable({
           <input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            className="min-w-0 flex-1 bg-transparent text-sm text-ink-700 outline-none placeholder:text-ink-400"
+            className="min-w-0 flex-1 bg-transparent text-body text-ink-700 outline-none placeholder:text-ink-400"
             placeholder="Search order..."
           />
           <button
@@ -324,14 +324,14 @@ function OrdersTable({
           ) : null}
         </div>
 
-        <button className="flex h-11 items-center justify-center gap-2 rounded-xl border border-ink-100 px-5 text-sm text-ink-500 hover:bg-ink-50">
+        <button className="flex h-11 items-center justify-center gap-2 rounded-xl border border-ink-100 px-5 text-body text-ink-500 hover:bg-ink-50">
           Actions
           <ChevronDown size={14} />
         </button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-auto rounded-lg">
-        <table className="h-full w-full min-w-[900px] table-fixed text-sm">
+        <table className="h-full w-full min-w-[900px] table-fixed text-body">
           <colgroup>
             <col className="w-12" />
             <col className="w-[14%]" />
@@ -343,7 +343,7 @@ function OrdersTable({
             <col className="w-10" />
           </colgroup>
           <thead>
-            <tr className="border-y border-ink-100 text-left text-xs uppercase tracking-wide text-ink-400">
+            <tr className="border-y border-ink-100 text-left text-section-title uppercase text-ink-500">
               <th className="w-12 px-2 py-4">
                 <Checkbox checked={allVisibleSelected} onChange={toggleVisibleOrders} label="Select all orders on this page" />
               </th>
@@ -411,7 +411,7 @@ function OrdersTable({
       <div className="mt-6 flex shrink-0 flex-col gap-4 border-t border-ink-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-4">
           <PageSizeSelect value={pageSize} onChange={onPageSizeChange} />
-          <p className="text-sm text-ink-400">
+          <p className="text-body text-ink-400">
             {filteredCount === 0 ? 'Showing 0 of 0' : `Showing ${pageStart} - ${pageEnd} of ${filteredCount}`}
           </p>
         </div>
@@ -428,7 +428,7 @@ function PageSizeSelect({ value, onChange }) {
   return (
     <div className="relative">
       <button
-        className="flex items-center gap-2 rounded-xl border border-ink-100 px-4 py-2 text-sm text-ink-500 hover:bg-ink-50"
+        className="flex items-center gap-2 rounded-xl border border-ink-100 px-4 py-2 text-body text-ink-500 hover:bg-ink-50"
         onClick={() => setOpen((current) => !current)}
         aria-expanded={open}
         aria-label="Rows per page"
@@ -441,7 +441,7 @@ function PageSizeSelect({ value, onChange }) {
           {pageSizeOptions.map((option) => (
             <button
               key={option}
-              className={`block w-full px-4 py-2 text-left text-sm hover:bg-ink-50 ${
+              className={`block w-full px-4 py-2 text-left text-body hover:bg-ink-50 ${
                 option === value ? 'font-medium text-brand-dark' : 'text-ink-500'
               }`}
               onClick={() => {
@@ -559,13 +559,13 @@ function FilterPopover({ filters, onFilterChange, onSave, onReset }) {
 
       <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <button
-          className="h-12 rounded-xl border border-ink-100 px-5 text-sm font-semibold text-ink-500 hover:bg-ink-50"
+          className="h-12 rounded-xl border border-ink-100 px-5 text-body font-semibold text-ink-500 hover:bg-ink-50"
           onClick={onReset}
         >
           Reset
         </button>
         <button
-          className="h-12 rounded-xl bg-brand-dark px-8 text-sm font-semibold text-white shadow-card hover:bg-brand-green"
+          className="h-12 rounded-xl bg-brand-dark px-8 text-body font-semibold text-white shadow-card hover:bg-brand-green"
           onClick={onSave}
         >
           Save
@@ -578,7 +578,7 @@ function FilterPopover({ filters, onFilterChange, onSave, onReset }) {
 function FilterField({ label, children }) {
   return (
     <label className="block">
-      <span className="mb-3 block text-base font-semibold text-ink-400">{label}</span>
+      <span className="mb-3 block text-sm font-medium text-ink-500">{label}</span>
       {children}
     </label>
   )
@@ -611,7 +611,7 @@ function DateInput({ value, onChange, placeholder }) {
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full rounded-xl border border-ink-100 bg-white px-11 pr-8 text-sm font-semibold text-ink-500 outline-none placeholder:text-ink-300 hover:bg-ink-50"
+        className="h-12 w-full rounded-xl border border-ink-100 bg-white px-11 pr-8 text-body font-semibold text-ink-500 outline-none placeholder:text-ink-300 hover:bg-ink-50"
       />
       <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" />
     </div>
@@ -628,7 +628,7 @@ function StatusBadge({ status }) {
   }
 
   return (
-    <span className={`inline-flex rounded-lg px-3 py-1 text-xs font-medium ${styles[status] || 'bg-ink-100 text-ink-500'}`}>
+    <span className={`inline-flex rounded-lg px-3 py-1 text-caption font-medium ${styles[status] || 'bg-ink-100 text-ink-500'}`}>
       {status}
     </span>
   )
@@ -638,7 +638,7 @@ function Pagination({ page, totalPages, onPageChange }) {
   const pages = buildPageNumbers(page, totalPages)
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm">
+    <div className="flex flex-wrap items-center gap-2 text-body">
       <PageButton disabled={page === 1} icon={ChevronsLeft} label="First page" onClick={() => onPageChange(1)} />
       <PageButton disabled={page === 1} icon={ChevronLeft} label="Previous page" onClick={() => onPageChange(page - 1)} />
       {pages.map((pageNumber, index) =>

@@ -11,7 +11,7 @@ export default function Sidebar() {
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-teal to-brand-green flex items-center justify-center">
           <Flower2 size={18} className="text-white" />
         </div>
-        <span className="font-semibold tracking-wide text-ink-900">FLOWER</span>
+        <span className="text-card-title tracking-tight text-ink-900">FLOWER</span>
       </div>
 
       <div className="px-4 mb-2">
@@ -19,13 +19,13 @@ export default function Sidebar() {
           <Search size={16} className="text-ink-400" />
           <input
             placeholder="Search anything"
-            className="bg-transparent outline-none text-sm text-ink-700 placeholder:text-ink-400 w-full"
+            className="w-full bg-transparent text-body text-ink-700 outline-none placeholder:text-ink-400"
           />
         </div>
       </div>
 
       <div className="px-6 py-2">
-        <p className="text-xs font-medium tracking-wider text-ink-400">MAIN MENU</p>
+        <p className="text-section-title uppercase text-ink-500">MAIN MENU</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-6">
@@ -39,7 +39,7 @@ export default function Sidebar() {
                   to={path}
                   end={path === '/'}
                   className={({ isActive }) =>
-                    `flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                    `flex items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-body transition-colors ${
                       isActive || isSectionActive
                         ? 'bg-brand-green/15 text-brand-dark font-medium'
                         : 'text-ink-500 hover:bg-ink-50 hover:text-ink-900'
@@ -56,7 +56,7 @@ export default function Sidebar() {
                       className={`transition-transform ${isSectionActive ? 'rotate-90' : ''}`}
                     />
                   ) : badge ? (
-                    <span className="bg-danger text-white text-[11px] leading-none rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-danger text-caption font-semibold leading-none text-white">
                       {badge}
                     </span>
                   ) : null}
@@ -69,7 +69,7 @@ export default function Sidebar() {
                         <NavLink
                           to={child.path}
                           className={({ isActive }) =>
-                            `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors before:h-1.5 before:w-1.5 before:rounded-full ${
+                            `flex items-center gap-3 rounded-lg px-3 py-2 text-body transition-colors before:h-1.5 before:w-1.5 before:rounded-full ${
                               isActive
                                 ? 'bg-brand-green/15 text-ink-900 font-medium before:bg-ink-900'
                                 : 'text-ink-500 hover:bg-ink-50 hover:text-ink-900 before:bg-ink-400'

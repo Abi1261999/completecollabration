@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Search, Flower2, ChevronRight } from 'lucide-react'
+import { Search, ChevronRight } from 'lucide-react'
+import FlowerLogo from './FlowerLogo'
 import { navItems } from '../navConfig'
 
 export default function Sidebar() {
@@ -7,10 +8,8 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden md:flex md:flex-col w-64 shrink-0 bg-white border-r border-ink-100 h-screen sticky top-0">
-      <div className="flex items-center gap-2 px-6 h-16 shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-teal to-brand-green flex items-center justify-center">
-          <Flower2 size={18} className="text-white" />
-        </div>
+      <div className="flex h-16 shrink-0 items-center gap-2.5 px-6">
+        <FlowerLogo />
         <span className="text-card-title tracking-tight text-ink-900">FLOWER</span>
       </div>
 

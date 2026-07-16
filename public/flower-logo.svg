@@ -1,0 +1,36 @@
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <clipPath id="flower-logo-clip">
+      <circle cx="15" cy="15" r="15" />
+    </clipPath>
+    <radialGradient id="flower-logo-teal" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(7 7) rotate(45) scale(18)">
+      <stop stop-color="#0F766E" />
+      <stop offset="1" stop-color="#0F766E" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="flower-logo-magenta" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(24 8) rotate(135) scale(16)">
+      <stop stop-color="#A21CAF" />
+      <stop offset="1" stop-color="#A21CAF" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="flower-logo-orange" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(15 28) rotate(-90) scale(20)">
+      <stop stop-color="#EA580C" />
+      <stop offset="1" stop-color="#FBBF24" stop-opacity="0.35" />
+    </radialGradient>
+    <linearGradient id="flower-logo-base" x1="2" y1="2" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#115E59" />
+      <stop offset="0.45" stop-color="#7E22CE" />
+      <stop offset="1" stop-color="#F97316" />
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#flower-logo-clip)">
+    <rect width="30" height="30" fill="url(#flower-logo-base)" />
+    <rect width="30" height="30" fill="url(#flower-logo-teal)" />
+    <rect width="30" height="30" fill="url(#flower-logo-magenta)" />
+    <rect width="30" height="30" fill="url(#flower-logo-orange)" />
+    <g fill="#FFFFFF">
+      <circle cx="15" cy="10.25" r="3.15" />
+      <circle cx="19.75" cy="15" r="3.15" />
+      <circle cx="15" cy="19.75" r="3.15" />
+      <circle cx="10.25" cy="15" r="3.15" />
+    </g>
+  </g>
+</svg>
